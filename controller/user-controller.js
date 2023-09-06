@@ -39,7 +39,7 @@ module.exports = {
                 } else {
                     // eslint-disable-next-line no-undef
                     const token = jwt.sign({ id: user._id }, process.env.JWT_SECRET, {
-                        expiresIn: '1d'
+                        expiresIn: '30d'
                     })
                     res.status(200).send({ message: "Login Successfull", token: token })
                 }
