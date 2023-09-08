@@ -4,6 +4,7 @@ const router = express.Router();
 
 router.post('/sign-up',userController.signUp)
 router.post('/sign-in',userController.signIn)
+router.post('/sign-in-jwt',userController.signInWithJwt)
 
 router.put('/add-profile/:id',userController.addProfile)
 router.put('/add-details/:id',userController.addDetails)

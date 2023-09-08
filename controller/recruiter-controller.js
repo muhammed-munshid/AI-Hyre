@@ -60,6 +60,27 @@ module.exports = {
         }
     },
 
+    signInWithJwt: async (req, res) => {
+        try {
+            const { token } = req.body;
+            jwt.verify(token,process.env.JWT_SECRET,(err,decoded)=>{
+                if(err){
+                    console.log(err);
+                    return res.status(401).send({
+                        message: "You have no account, Please Login",
+                        noToken:true
+                    })
+                }else{
+                    req.body.userId=decoded.id;
+                }
+            })
+            res.status(200).send({ message: "Login Successfull", recruiterId: recruiter._id, recruiterName: recruiter.name, token: token })
+        } catch (error) {
+            console.log(error);
+            res.status(500).send({ error: 'Failed to SignIn' })
+        }
+    },
+
 
     candidates: async (req, res) => {
         try {

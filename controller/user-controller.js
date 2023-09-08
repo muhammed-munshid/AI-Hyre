@@ -52,6 +52,29 @@ module.exports = {
         }
     },
 
+    signInWithJwt: async (req, res) => {
+        try {
+            const { token } = req.body;
+            jwt.verify(token, process.env.JWT_SECRET, async (err, decoded) => {
+                if (err) {
+                    console.log(err);
+                    return res.status(401).send({
+                        message: "You have no account, Please Login",
+                        noToken: true
+                    })
+                } else {
+                    const userId = decoded.id;
+                    const user = await userModel.findById(userId)
+                    res.status(200).send({ message: "Login Successfull", userId: userId, user: user, token: token })
+                }
+            })
+        } catch (error) {
+            console.log(error);
+            res.status(500).send({ error: 'Failed to SignIn' })
+        }
+    },
+
+
     addProfile: async (req, res) => {
         try {
             const userId = req.params.id
