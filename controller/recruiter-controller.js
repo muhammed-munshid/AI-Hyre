@@ -1,24 +1,32 @@
 const recruiterModel = require('../model/recruiterModel');
 const bcrypt = require('bcrypt')
 const jwt = require('jsonwebtoken');
+const userModel = require('../model/userModel');
 
 module.exports = {
-    
+
     signUp: async (req, res) => {
         try {
-            let { email, password } = req.body;
+            let { name, email, password, company_name, location, phone, profile_pic, company_verified, website_link } = req.body;
             const salt = await bcrypt.genSalt(10)
             const hashedPassword = await bcrypt.hash(password, salt)
             password = hashedPassword
             const recruiterExist = await recruiterModel.findOne({ email: email })
             if (!recruiterExist) {
                 const recruiter = new recruiterModel({
+                    name,
                     email,
-                    password
+                    password,
+                    company_name,
+                    location,
+                    phone,
+                    profile_pic,
+                    company_verified,
+                    website_link
                 });
                 await recruiter.save();
-                const recruiters = await recruiterModel.find()
-                res.status(200).send({ message: 'Your signUp verificatoin successfully', recruiters: recruiters })
+                const newRecruiter = await recruiterModel.findOne({ email: email })
+                res.status(200).send({ message: 'Your signUp verificatoin successfully', newRecruiter: newRecruiter })
             } else {
                 res.status(200).send({ message: 'You are already registered' })
             }
@@ -41,7 +49,7 @@ module.exports = {
                     const token = jwt.sign({ id: recruiter._id }, process.env.JWT_SECRET, {
                         expiresIn: '30d'
                     })
-                    res.status(200).send({ message: "Login Successfull", token: token })
+                    res.status(200).send({ message: "Login Successfull", recruiterId: recruiter._id, recruiterName: recruiter.name, token: token })
                 }
             } else {
                 res.status(200).send({ message: "Incorrect Email or Password" })
@@ -51,5 +59,17 @@ module.exports = {
             res.status(500).send({ error: 'Failed to SignIn' })
         }
     },
+
+
+    candidates: async (req, res) => {
+        try {
+            const candidates = await userModel.find()
+            res.status(200).send({ candidates: candidates })
+        } catch (error) {
+            console.log(error);
+            res.status(500).send({ error: 'Failed to SignIn' })
+        }
+    },
+
 
 }

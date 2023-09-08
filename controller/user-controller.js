@@ -41,7 +41,7 @@ module.exports = {
                     const token = jwt.sign({ id: user._id }, process.env.JWT_SECRET, {
                         expiresIn: '30d'
                     })
-                    res.status(200).send({ message: "Login Successfull", userId: user._id, token: token })
+                    res.status(200).send({ message: "Login Successfull", userId: user._id, userName: user.name, token: token })
                 }
             } else {
                 res.status(200).send({ message: "Incorrect Email or Password" })
@@ -49,6 +49,47 @@ module.exports = {
         } catch (error) {
             console.log(error);
             res.status(500).send({ error: 'Failed to SignIn' })
+        }
+    },
+
+    addProfile: async (req, res) => {
+        try {
+            const userId = req.params.id
+            const { name, status, skill_set, profile_pic } = req.body;
+            await userModel.findByIdAndUpdate(userId, {
+                $set: {
+                    name,
+                    status,
+                    skill_set,
+                    profile_pic
+                }
+            })
+            const updatedUser = await userModel.findById(userId)
+            res.status(200).send({ message: "Profile Updated", updatedUser: updatedUser })
+        } catch (error) {
+            console.log(error);
+            res.status(500).send({ error: 'Somthing error' })
+        }
+    },
+
+    addDetails: async (req, res) => {
+        try {
+            const userId = req.params.id
+            const { phone, location, experience, certifications, github_link } = req.body;
+            await userModel.findByIdAndUpdate(userId, {
+                $set: {
+                    phone,
+                    location,
+                    experience,
+                    certifications,
+                    github_link
+                }
+            })
+            const updatedUser = await userModel.findById(userId)
+            res.status(200).send({ message: "Details Added", updatedUser: updatedUser })
+        } catch (error) {
+            console.log(error);
+            res.status(500).send({ error: 'Somthing error' })
         }
     },
 
