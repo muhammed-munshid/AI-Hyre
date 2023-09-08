@@ -3,7 +3,7 @@ const bcrypt = require('bcrypt')
 const jwt = require('jsonwebtoken')
 
 module.exports = {
-    
+
     signUp: async (req, res) => {
         try {
             let { email, password } = req.body;
@@ -17,8 +17,8 @@ module.exports = {
                     password
                 });
                 await user.save();
-                const users = await userModel.find()
-                res.status(200).send({ message: 'Your signUp verificatoin successfully', users: users })
+                const newUser = await userModel.findOne({ email: email })
+                res.status(200).send({ message: 'Your signUp verificatoin successfully', newUser: newUser })
             } else {
                 res.status(200).send({ message: 'You are already registered' })
             }
@@ -41,7 +41,7 @@ module.exports = {
                     const token = jwt.sign({ id: user._id }, process.env.JWT_SECRET, {
                         expiresIn: '30d'
                     })
-                    res.status(200).send({ message: "Login Successfull", token: token })
+                    res.status(200).send({ message: "Login Successfull", userId: user._id, token: token })
                 }
             } else {
                 res.status(200).send({ message: "Incorrect Email or Password" })
