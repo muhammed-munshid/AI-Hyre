@@ -26,6 +26,7 @@ module.exports = {
                 });
                 await recruiter.save();
                 const newRecruiter = await recruiterModel.findOne({ email: email })
+                newRecruiter.password = undefined
                 res.status(200).send({ message: 'Your Sign-up verification was successful', newRecruiter: newRecruiter })
             } else {
                 res.status(200).send({ message: 'You are already registered' })
@@ -73,6 +74,7 @@ module.exports = {
                 } else {
                     const recruiterId = decoded.id;
                     const recruiter = await recruiterModel.findById(recruiterId)
+                    recruiter.password = undefined
                     res.status(200).send({ message: "Login Successfull", recruiterId: recruiterId, recruiter: recruiter, token: token })
                 }
             })
@@ -85,7 +87,7 @@ module.exports = {
 
     candidates: async (req, res) => {
         try {
-            const candidates = await userModel.find()
+            const candidates = await userModel.find({}, { password: 0 })
             res.status(200).send({ candidates: candidates })
         } catch (error) {
             console.log(error);

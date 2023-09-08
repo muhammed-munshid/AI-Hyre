@@ -18,6 +18,7 @@ module.exports = {
                 });
                 await user.save();
                 const newUser = await userModel.findOne({ email: email })
+                newUser.password = undefined
                 res.status(200).send({ message: 'Your Sign-up verification was successful', newUser: newUser })
             } else {
                 res.status(200).send({ message: 'You are already registered' })
@@ -65,6 +66,7 @@ module.exports = {
                 } else {
                     const userId = decoded.id;
                     const user = await userModel.findById(userId)
+                    user.password = undefined
                     res.status(200).send({ message: "Login Successfull", userId: userId, user: user, token: token })
                 }
             })
@@ -88,6 +90,7 @@ module.exports = {
                 }
             })
             const updatedUser = await userModel.findById(userId)
+            updatedUser.password = undefined
             res.status(200).send({ message: "Profile Updated", updatedUser: updatedUser })
         } catch (error) {
             console.log(error);
@@ -109,6 +112,7 @@ module.exports = {
                 }
             })
             const updatedUser = await userModel.findById(userId)
+            updatedUser.password = undefined
             res.status(200).send({ message: "Details Added", updatedUser: updatedUser })
         } catch (error) {
             console.log(error);
