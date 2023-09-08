@@ -72,7 +72,7 @@ module.exports = {
                     })
                 } else {
                     const recruiterId = decoded.id;
-                    const recruiter = await userModel.findById(recruiterId)
+                    const recruiter = await recruiterModel.findById(recruiterId)
                     res.status(200).send({ message: "Login Successfull", recruiterId: recruiterId, recruiter: recruiter, token: token })
                 }
             })
