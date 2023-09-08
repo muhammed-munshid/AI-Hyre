@@ -18,7 +18,7 @@ module.exports = {
                 });
                 await user.save();
                 const newUser = await userModel.findOne({ email: email })
-                res.status(200).send({ message: 'Your signUp verificatoin successfully', newUser: newUser })
+                res.status(200).send({ message: 'Your Sign-up verification was successful', newUser: newUser })
             } else {
                 res.status(200).send({ message: 'You are already registered' })
             }

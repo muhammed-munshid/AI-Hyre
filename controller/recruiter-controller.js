@@ -26,7 +26,7 @@ module.exports = {
                 });
                 await recruiter.save();
                 const newRecruiter = await recruiterModel.findOne({ email: email })
-                res.status(200).send({ message: 'Your signUp verificatoin successfully', newRecruiter: newRecruiter })
+                res.status(200).send({ message: 'Your Sign-up verification was successful', newRecruiter: newRecruiter })
             } else {
                 res.status(200).send({ message: 'You are already registered' })
             }
