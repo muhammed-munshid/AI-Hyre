@@ -98,7 +98,6 @@ module.exports = {
     candidates: async (req, res) => {
         try {
             const candidates = await userModel.find({}, { password: 0 })
-            console.log(candidates);
             res.status(200).send({ candidates: candidates })
         } catch (error) {
             console.log(error);
