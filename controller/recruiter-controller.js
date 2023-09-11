@@ -47,7 +47,7 @@ module.exports = {
                     res.status(200).send({ message: "Incorrect Password" })
                 } else {
                     // eslint-disable-next-line no-undef
-                    const token = jwt.sign({ id: recruiter._id }, process.env.JWT_SECRET, {
+                    const token = jwt.sign({ id: recruiter._id }, process.env.JWT_SECRET_RECRUITER, {
                         expiresIn: '30d'
                     })
                     res.status(200).send({ message: "Login Successfull", recruiterId: recruiter._id, recruiterName: recruiter.name, token: token })
@@ -63,21 +63,7 @@ module.exports = {
 
     signInWithJwt: async (req, res) => {
         try {
-            const { token } = req.body;
-            jwt.verify(token, process.env.JWT_SECRET, async (err, decoded) => {
-                if (err) {
-                    console.log(err);
-                    return res.status(401).send({
-                        message: "You have no account, Please Login",
-                        noToken: true
-                    })
-                } else {
-                    const recruiterId = decoded.id;
-                    const recruiter = await recruiterModel.findById(recruiterId)
-                    recruiter.password = undefined
-                    res.status(200).send({ message: "Login Successfull", recruiterId: recruiterId, recruiter: recruiter, token: token })
-                }
-            })
+            res.json({ authorization: true, recruiterId: req.user._id, recruiterName: req.user.email });
         } catch (error) {
             console.log(error);
             res.status(500).send({ error: 'Failed to SignIn' })

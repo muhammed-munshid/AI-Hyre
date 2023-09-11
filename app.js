@@ -3,12 +3,13 @@ const cors = require('cors'); // Import the cors module
 const db = require('./config/connection');
 const bodyParser = require('body-parser');
 const dotenv = require('dotenv');
+dotenv.config();
+require('./middleware/passport')
 
 // Routes
 const userRouter = require('./routes/user');
 const recruiterRouter = require('./routes/recruiter');
 
-dotenv.config();
 
 const app = express();
 

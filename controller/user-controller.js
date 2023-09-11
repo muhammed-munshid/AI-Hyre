@@ -39,7 +39,7 @@ module.exports = {
                     res.status(200).send({ message: "Incorrect Password" })
                 } else {
                     // eslint-disable-next-line no-undef
-                    const token = jwt.sign({ id: user._id }, process.env.JWT_SECRET, {
+                    const token = jwt.sign({ id: user._id }, process.env.JWT_SECRET_USER, {
                         expiresIn: '30d'
                     })
                     res.status(200).send({ message: "Login Successfull", userId: user._id, userName: user.name, token: token })
@@ -55,26 +55,12 @@ module.exports = {
 
     signInWithJwt: async (req, res) => {
         try {
-            const { token } = req.body;
-            jwt.verify(token, process.env.JWT_SECRET, async (err, decoded) => {
-                if (err) {
-                    console.log(err);
-                    return res.status(401).send({
-                        message: "You have no account, Please Login",
-                        noToken: true
-                    })
-                } else {
-                    const userId = decoded.id;
-                    const user = await userModel.findById(userId)
-                    user.password = undefined
-                    res.status(200).send({ message: "Login Successfull", userId: userId, user: user, token: token })
-                }
-            })
-        } catch (error) {
-            console.log(error);
-            res.status(500).send({ error: 'Failed to SignIn' })
-        }
-    },
+            res.json({ authorization: true, userId: req.user._id, username: req.user.email });
+    } catch(error) {
+        console.log(error);
+        res.status(500).send({ error: 'Failed to SignIn' })
+    }
+},
 
 
     addProfile: async (req, res) => {
@@ -98,26 +84,26 @@ module.exports = {
         }
     },
 
-    addDetails: async (req, res) => {
-        try {
-            const userId = req.params.id
-            const { phone, location, experience, certifications, github_link } = req.body;
-            await userModel.findByIdAndUpdate(userId, {
-                $set: {
-                    phone,
-                    location,
-                    experience,
-                    certifications,
-                    github_link
-                }
-            })
-            const updatedUser = await userModel.findById(userId)
-            updatedUser.password = undefined
-            res.status(200).send({ message: "Details Added", updatedUser: updatedUser })
-        } catch (error) {
-            console.log(error);
-            res.status(500).send({ error: 'Somthing error' })
-        }
-    },
+        addDetails: async (req, res) => {
+            try {
+                const userId = req.params.id
+                const { phone, location, experience, certifications, github_link } = req.body;
+                await userModel.findByIdAndUpdate(userId, {
+                    $set: {
+                        phone,
+                        location,
+                        experience,
+                        certifications,
+                        github_link
+                    }
+                })
+                const updatedUser = await userModel.findById(userId)
+                updatedUser.password = undefined
+                res.status(200).send({ message: "Details Added", updatedUser: updatedUser })
+            } catch (error) {
+                console.log(error);
+                res.status(500).send({ error: 'Somthing error' })
+            }
+        },
 
 }
