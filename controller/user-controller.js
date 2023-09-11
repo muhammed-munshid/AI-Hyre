@@ -65,7 +65,7 @@ module.exports = {
 
     addProfile: async (req, res) => {
         try {
-            const userId = req.params.id
+            const userId = req.user._id
             const { name, status, skill_set, profile_pic } = req.body;
             await userModel.findByIdAndUpdate(userId, {
                 $set: {
@@ -86,7 +86,7 @@ module.exports = {
 
         addDetails: async (req, res) => {
             try {
-                const userId = req.params.id
+                const userId = req.user._id
                 const { phone, location, experience, certifications, github_link } = req.body;
                 await userModel.findByIdAndUpdate(userId, {
                     $set: {

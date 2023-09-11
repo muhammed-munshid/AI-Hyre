@@ -66,7 +66,31 @@ module.exports = {
             res.json({ authorization: true, recruiterId: req.user._id, recruiterName: req.user.email });
         } catch (error) {
             console.log(error);
-            res.status(500).send({ error: 'Failed to SignIn' })
+            res.status(500).send({ error: 'Failed to check JWT' })
+        }
+    },
+
+    addProfile: async (req, res) => {
+        try {
+            const recruiterId = req.user._id
+            const { name, company_name, location, phone, profile_pic, company_verified, website_link } = req.body;
+            await recruiterModel.findByIdAndUpdate(recruiterId, {
+                $set: {
+                    name,
+                    company_name,
+                    location,
+                    phone,
+                    profile_pic,
+                    company_verified,
+                    website_link
+                }
+            })
+            const updatedRecruiter = await recruiterModel.findById(recruiterId)
+            updatedRecruiter.password = undefined
+            res.status(200).send({ message: "Profile Updated", updatedRecruiter: updatedRecruiter })
+        } catch (error) {
+            console.log(error);
+            res.status(500).send({ error: 'Somthing error' })
         }
     },
 

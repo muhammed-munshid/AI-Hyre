@@ -10,7 +10,7 @@ router.get('/sign-in-jwt',passport.authenticate('user-jwt', { session: false }),
 router.post('/sign-up',userController.signUp)
 router.post('/sign-in',userController.signIn)
 
-router.put('/add-profile/:id',userController.addProfile)
-router.put('/add-details/:id',userController.addDetails)
+router.put('/add-profile',passport.authenticate('user-jwt', { session: false }),userController.addProfile)
+router.put('/add-details',passport.authenticate('user-jwt', { session: false }),userController.addDetails)
 
 module.exports = router
