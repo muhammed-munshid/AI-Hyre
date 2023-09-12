@@ -1,6 +1,7 @@
 const userModel = require("../model/userModel");
 const bcrypt = require('bcrypt')
-const jwt = require('jsonwebtoken')
+const jwt = require('jsonwebtoken');
+const jobModel = require("../model/jobModel");
 
 module.exports = {
 
@@ -56,11 +57,11 @@ module.exports = {
     signInWithJwt: async (req, res) => {
         try {
             res.json({ authorization: true, userId: req.user._id, username: req.user.email });
-    } catch(error) {
-        console.log(error);
-        res.status(500).send({ error: 'Failed to SignIn' })
-    }
-},
+        } catch (error) {
+            console.log(error);
+            res.status(500).send({ error: 'Failed to SignIn' })
+        }
+    },
 
 
     addProfile: async (req, res) => {
@@ -84,26 +85,36 @@ module.exports = {
         }
     },
 
-        addDetails: async (req, res) => {
-            try {
-                const userId = req.user._id
-                const { phone, location, experience, certifications, github_link } = req.body;
-                await userModel.findByIdAndUpdate(userId, {
-                    $set: {
-                        phone,
-                        location,
-                        experience,
-                        certifications,
-                        github_link
-                    }
-                })
-                const updatedUser = await userModel.findById(userId)
-                updatedUser.password = undefined
-                res.status(200).send({ message: "Details Added", updatedUser: updatedUser })
-            } catch (error) {
-                console.log(error);
-                res.status(500).send({ error: 'Somthing error' })
-            }
-        },
+    addDetails: async (req, res) => {
+        try {
+            const userId = req.user._id
+            const { phone, location, experience, certifications, github_link } = req.body;
+            await userModel.findByIdAndUpdate(userId, {
+                $set: {
+                    phone,
+                    location,
+                    experience,
+                    certifications,
+                    github_link
+                }
+            })
+            const updatedUser = await userModel.findById(userId)
+            updatedUser.password = undefined
+            res.status(200).send({ message: "Details Added", updatedUser: updatedUser })
+        } catch (error) {
+            console.log(error);
+            res.status(500).send({ error: 'Somthing error' })
+        }
+    },
+
+    allJobs: async (req, res) => {
+        try {
+            const jobs = await jobModel.find()
+            res.status(200).send({ jobs: jobs })
+        } catch (error) {
+            console.log(error);
+            res.status(500).send({ error: 'Failed to SignIn' })
+        }
+    },
 
 }

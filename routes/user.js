@@ -6,6 +6,7 @@ const router = express.Router();
 passport.initialize();
 
 router.get('/sign-in-jwt',passport.authenticate('user-jwt', { session: false }),userController.signInWithJwt)
+router.get('/jobs',passport.authenticate('user-jwt', { session: false }),userController.allJobs)
 
 router.post('/sign-up',userController.signUp)
 router.post('/sign-in',userController.signIn)

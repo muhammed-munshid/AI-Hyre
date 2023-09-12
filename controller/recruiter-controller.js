@@ -2,6 +2,7 @@ const recruiterModel = require('../model/recruiterModel');
 const bcrypt = require('bcrypt')
 const jwt = require('jsonwebtoken');
 const userModel = require('../model/userModel');
+const jobModel = require('../model/jobModel');
 
 module.exports = {
 
@@ -50,7 +51,7 @@ module.exports = {
                     const token = jwt.sign({ id: recruiter._id }, process.env.JWT_SECRET_RECRUITER, {
                         expiresIn: '30d'
                     })
-                    res.status(200).send({ message: "Login Successfull", recruiterId: recruiter._id, recruiterName: recruiter.name, token: token })
+                    res.status(200).send({ message: "Login Successful", recruiterId: recruiter._id, recruiterName: recruiter.name, token: token })
                 }
             } else {
                 res.status(200).send({ message: "Incorrect Email or Password" })
@@ -102,6 +103,29 @@ module.exports = {
         } catch (error) {
             console.log(error);
             res.status(500).send({ error: 'Failed to SignIn' })
+        }
+    },
+
+    addJob: async (req, res) => {
+        try {
+            const recruiter = req.user._id
+            const { job_title, min_exp, job_type, required_skill_set, job_active, location, isRemote } = req.body;
+            const job = new jobModel({
+                job_title,
+                min_exp,
+                job_type,
+                required_skill_set,
+                job_active,
+                recruiter,
+                location,
+                isRemote
+            });
+            await job.save();
+            const jobs = await jobModel.find()
+            res.status(200).send({ message: 'Job created successful', jobs: jobs })
+        } catch (error) {
+            console.log(error);
+            res.status(500).send({ error: 'Something Error' })
         }
     },
 

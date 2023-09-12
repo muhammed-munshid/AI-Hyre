@@ -8,6 +8,7 @@ router.get('/candidates', recruiterController.candidates)
 
 router.post('/sign-up', recruiterController.signUp)
 router.post('/sign-in', recruiterController.signIn)
+router.post('/add-job',  passport.authenticate('recruiter-jwt', { session: false }), recruiterController.addJob)
 
 router.put('/add-profile', passport.authenticate('recruiter-jwt', { session: false }), recruiterController.addProfile)
 
