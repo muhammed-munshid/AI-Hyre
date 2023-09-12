@@ -129,5 +129,27 @@ module.exports = {
         }
     },
 
+    editJob: async (req, res) => {
+        try {
+            const jobId = req.params.id
+            const { job_title, min_exp, job_type, required_skill_set, job_active, location, isRemote } = req.body;
+            await jobModel.findByIdAndUpdate(jobId, {
+                $set: {
+                    job_title,
+                    min_exp,
+                    job_type,
+                    required_skill_set,
+                    job_active,
+                    location,
+                    isRemote
+                }
+            })
+            const updatedJob = await jobModel.findById(jobId)
+            res.status(200).send({ message: "Job Updated", updatedJob: updatedJob })
+        } catch (error) {
+            console.log(error);
+            res.status(500).send({ error: 'Somthing error' })
+        }
+    },
 
 }
