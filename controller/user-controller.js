@@ -57,7 +57,7 @@ module.exports = {
     signInWithJwt: async (req, res) => {
         try {
             if (req.user) {
-                const user = await candidateModel.findById(req.user._id)
+                const user = await userModel.findById(req.user._id)
                 if (user.on_boarding_1 == true) {
                     res.json({ authorization: true, userId: req.user._id, username: req.user.email, on_boarding_1: true });
                 } else {
