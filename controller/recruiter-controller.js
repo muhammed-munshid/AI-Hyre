@@ -64,7 +64,16 @@ module.exports = {
 
     signInWithJwt: async (req, res) => {
         try {
-            res.json({ authorization: true, recruiterId: req.user._id, recruiterName: req.user.email });
+            if (req.user) {
+                const recruiter = await recruiterModel.findById(req.user._id)
+                if (recruiter.on_boarding == true) {
+                    res.json({ authorization: true, recruiterId: req.user._id, recruiterName: req.user.email, on_boarding: true });
+                } else {
+                    res.json({ authorization: true, recruiterId: req.user._id, recruiterName: req.user.email, on_boarding: false });
+                }
+            } else {
+                res.json({ authorization: false });
+            }
         } catch (error) {
             console.log(error);
             res.status(500).send({ error: 'Failed to check JWT' })
@@ -83,7 +92,8 @@ module.exports = {
                     phone,
                     profile_pic,
                     company_verified,
-                    website_link
+                    website_link,
+                    on_boarding: true
                 }
             })
             const updatedRecruiter = await recruiterModel.findById(recruiterId)

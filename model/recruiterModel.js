@@ -33,6 +33,10 @@ const recruiterSchema = new mongoose.Schema({
     },
     website_link: {
         type: String
+    },
+    on_boarding: {
+        type: Boolean,
+        default: false
     }
 })
 
