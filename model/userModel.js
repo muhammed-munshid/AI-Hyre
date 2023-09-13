@@ -39,7 +39,12 @@ const userSchema = new mongoose.Schema({
         }
     }],
     user_verified: {
-        type: Boolean
+        type: Boolean,
+        default: false
+    },
+    on_boarding_1: {
+        type: Boolean,
+        default: false
     },
     certifications: [{
         name: {

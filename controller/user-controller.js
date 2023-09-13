@@ -56,7 +56,16 @@ module.exports = {
 
     signInWithJwt: async (req, res) => {
         try {
-            res.json({ authorization: true, userId: req.user._id, username: req.user.email });
+            if (req.user) {
+                const user = await candidateModel.findById(req.user._id)
+                if (user.on_boarding_1 == true) {
+                    res.json({ authorization: true, userId: req.user._id, username: req.user.email, on_boarding_1: true });
+                } else {
+                    res.json({ authorization: true, userId: req.user._id, username: req.user.email, on_boarding_1: false })
+                }
+            } else {
+                res.json({ authorization: false });
+            }
         } catch (error) {
             console.log(error);
             res.status(500).send({ error: 'Failed to SignIn' })
@@ -73,7 +82,8 @@ module.exports = {
                     name,
                     status,
                     skill_set,
-                    profile_pic
+                    profile_pic,
+                    on_boarding_1: true
                 }
             })
             const updatedUser = await userModel.findById(userId)
