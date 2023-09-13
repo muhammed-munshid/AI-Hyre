@@ -57,6 +57,11 @@ module.exports = {
     signInWithJwt: async (req, res) => {
         try {
             if (req.user) {
+                await userModel.findByIdAndUpdate(req.user._id, {
+                    $set: {
+                        user_verified: true
+                    }
+                })
                 const user = await userModel.findById(req.user._id)
                 if (user.on_boarding_1 == true) {
                     res.json({ authorization: true, userId: req.user._id, username: req.user.email, on_boarding_1: true });
