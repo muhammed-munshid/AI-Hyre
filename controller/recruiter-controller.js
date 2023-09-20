@@ -119,15 +119,16 @@ module.exports = {
     addJob: async (req, res) => {
         try {
             const recruiter = req.user._id
-            const { job_title, min_exp, job_type, required_skill_set, job_active, location, isRemote } = req.body;
+            const { job_title, location, min_exp, job_type, required_skill_set, job_description, job_active, isRemote } = req.body;
             const job = new jobModel({
                 job_title,
+                location,
                 min_exp,
                 job_type,
                 required_skill_set,
+                job_description,
                 job_active,
                 recruiter,
-                location,
                 isRemote
             });
             await job.save();
@@ -142,15 +143,16 @@ module.exports = {
     editJob: async (req, res) => {
         try {
             const jobId = req.params.id
-            const { job_title, min_exp, job_type, required_skill_set, job_active, location, isRemote } = req.body;
+            const { job_title, location, min_exp, job_type, required_skill_set, job_description, job_active, isRemote } = req.body;
             await jobModel.findByIdAndUpdate(jobId, {
                 $set: {
                     job_title,
+                    location,
                     min_exp,
                     job_type,
                     required_skill_set,
+                    job_description,
                     job_active,
-                    location,
                     isRemote
                 }
             })

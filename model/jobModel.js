@@ -5,6 +5,14 @@ const jobSchema = new mongoose.Schema({
     job_title: {
         type: String
     },
+    location: {
+        country: {
+            type: String
+        },
+        city: {
+            type: String
+        }
+    },
     min_exp: {
         type: Number,
     },
@@ -19,6 +27,9 @@ const jobSchema = new mongoose.Schema({
             type: Number
         }
     },
+    job_description : {
+        type: String
+    },
     applicants: {
         type: Array
     },
@@ -27,9 +38,6 @@ const jobSchema = new mongoose.Schema({
     },
     recruiter: {
         type: ObjectId
-    },
-    location: {
-        type: String
     },
     isRemote: {
         type: Boolean
