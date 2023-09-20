@@ -23,7 +23,7 @@ const jobSchema = new mongoose.Schema({
         skill_name: {
             type: String
         },
-        min_skill_perc: {
+        min_skill_exprnce: {
             type: Number
         }
     },
