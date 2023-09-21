@@ -6,6 +6,8 @@ const router = express.Router();
 router.get('/sign-in-jwt', passport.authenticate('recruiter-jwt', { session: false }), recruiterController.signInWithJwt)
 router.get('/candidates', passport.authenticate('recruiter-jwt', { session: false }), recruiterController.candidates)
 router.get('/candidate-info/:id', passport.authenticate('recruiter-jwt', { session: false }), recruiterController.candidateById)
+router.get('/jobs', passport.authenticate('recruiter-jwt', { session: false }), recruiterController.jobs)
+router.get('/job-by-id/:id', passport.authenticate('recruiter-jwt', { session: false }), recruiterController.jobById)
 
 router.post('/sign-up', recruiterController.signUp)
 router.post('/sign-in', recruiterController.signIn)

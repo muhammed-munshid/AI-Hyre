@@ -122,13 +122,24 @@ module.exports = {
         }
     },
 
-    allJobs: async (req, res) => {
+    jobs: async (req, res) => {
         try {
             const jobs = await jobModel.find()
             res.status(200).send({ jobs: jobs })
         } catch (error) {
             console.log(error);
-            res.status(500).send({ error: 'Failed to SignIn' })
+            res.status(500).send({ error: 'Somthing error' })
+        }
+    },
+
+    jobById: async (req, res) => {
+        try {
+            const jobById = req.params.id
+            const job = await jobModel.findById(jobById)
+            res.status(200).send({ job: job })
+        } catch (error) {
+            console.log(error);
+            res.status(500).send({ error: 'Somthing error' })
         }
     },
 
