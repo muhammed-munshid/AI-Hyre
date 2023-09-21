@@ -112,7 +112,18 @@ module.exports = {
             res.status(200).send({ candidates: candidates })
         } catch (error) {
             console.log(error);
-            res.status(500).send({ error: 'Failed to SignIn' })
+            res.status(500).send({ error: 'Somthing error' })
+        }
+    },
+
+    candidateById: async (req, res) => {
+        try {
+            const candidateById = req.params.id
+            const candidate = await userModel.findById(candidateById, { password: 0 })
+            res.status(200).send({ candidate: candidate })
+        } catch (error) {
+            console.log(error);
+            res.status(500).send({ error: 'Somthing error' })
         }
     },
 
