@@ -187,41 +187,33 @@ module.exports = {
         try {
             const userId = req.user._id;
             const recruiterId = req.params.id
-            const skillset = req.body;
             const candidate = await userModel.findById(userId);
-            const jobs = await jobModel.find({recruiter: recruiterId})
-            
-            if (!candidate) {
-                // Handle the case where the user is not found
-                return res.status(404).json({ message: 'User not found' });
-            }
-            
-            console.log(candidate);
-            
+            const skillset = candidate.skill_set
+            const jobs = await jobModel.find({ recruiter: recruiterId })
+
             // Filter jobs based on the skillset criteria
             const matchingJobs = jobs.filter(job => {
                 const requiredSkillSet = job.required_skill_set;
-            
+
                 if (!requiredSkillSet || requiredSkillSet.length === 0) {
                     return false;
                 }
-            
-                // Check if all skills in req.body match the candidate's skills with equal or higher percentage
+                // Check if all skills in req.body meet the percentage criteria for this job
                 return skillset.every(reqSkill => {
-                    const candidateSkill = candidate.skill_set.find(
-                        candSkill => candSkill.skill === reqSkill.skill
+                    const requiredSkill = requiredSkillSet.find(
+                        jobSkill => jobSkill.skill_name === reqSkill.skill
                     );
-            
+
                     return (
-                        candidateSkill &&
-                        candidateSkill.percentage >= reqSkill.percentage
+                        requiredSkill &&
+                        reqSkill.percentage >= requiredSkill.min_skill_exprnce
                     );
                 });
             });
-            
+
             console.log(matchingJobs);
-            
-            res.status(200).send({ matchingJobs: matchingJobs })
+
+            res.status(200).json( matchingJobs )
         } catch (error) {
             console.log(error);
             res.status(500).send({ error: 'Somthing error' })
