@@ -13,9 +13,6 @@ const userSchema = new mongoose.Schema({
     password: {
         type: String
     },
-    location: {
-        type: String
-    },
     skill_set: [{
         skill: {
             type: String
@@ -28,7 +25,7 @@ const userSchema = new mongoose.Schema({
         type: String
     },
     experience: [{
-        total_time: {
+        total_exp: {
             type: String
         },
         company_name: {
@@ -36,8 +33,14 @@ const userSchema = new mongoose.Schema({
         },
         position: {
             type: String
+        },
+        description: {
+            type: String
         }
     }],
+    about_us: {
+        type:String
+    },
     user_verified: {
         type: Boolean,
         default: false
@@ -46,6 +49,17 @@ const userSchema = new mongoose.Schema({
         type: Boolean,
         default: false
     },
+    education: [{
+        course_name: {
+            type: String
+        },
+        provider: {
+            type: String
+        },
+        education_exp: {
+            type: String
+        }
+    }],
     certifications: [{
         name: {
             type: String
@@ -66,7 +80,7 @@ const userSchema = new mongoose.Schema({
     profile_likes: {
         type: Number
     },
-    github_link: {
+    portfolio_link: {
         type: String
     },
     status: {

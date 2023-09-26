@@ -11,6 +11,7 @@ router.get('/job-by-id/:id',passport.authenticate('user-jwt', { session: false }
 
 router.post('/sign-up',userController.signUp)
 router.post('/sign-in',userController.signIn)
+router.post('/jobs-by-skillset/:id',passport.authenticate('user-jwt', { session: false }),userController.jobsByskillSet)
 
 router.put('/add-profile',passport.authenticate('user-jwt', { session: false }),userController.addProfile)
 router.put('/add-details',passport.authenticate('user-jwt', { session: false }),userController.addDetails)

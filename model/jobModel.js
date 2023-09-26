@@ -19,14 +19,14 @@ const jobSchema = new mongoose.Schema({
     job_type: {
         type: String
     },
-    required_skill_set: {
+    required_skill_set: [{
         skill_name: {
             type: String
         },
         min_skill_exprnce: {
             type: Number
         }
-    },
+    }],
     job_description : {
         type: String
     },

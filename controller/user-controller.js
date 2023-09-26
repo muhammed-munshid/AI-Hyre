@@ -2,6 +2,9 @@ const userModel = require("../model/userModel");
 const bcrypt = require('bcrypt')
 const jwt = require('jsonwebtoken');
 const jobModel = require("../model/jobModel");
+const moment = require('moment');
+const recruiterModel = require("../model/recruiterModel");
+const { candidates } = require("./recruiter-controller");
 
 module.exports = {
 
@@ -103,16 +106,53 @@ module.exports = {
     addDetails: async (req, res) => {
         try {
             const userId = req.user._id
-            const { phone, location, experience, certifications, github_link } = req.body;
+            let { phone, experience, education, certifications, portfolio_link, about_us } = req.body;
+
+
+            function calculateExperienceForEachElement(experience) {
+                return experience.map(exp => {
+                    const startDate = moment(exp.start_date, 'DD-MM-YYYY');
+                    const endDate = moment(exp.end_date, 'DD-MM-YYYY');
+                    const years = endDate.diff(startDate, 'years');
+                    const months = endDate.diff(startDate, 'months') % 12;
+
+                    return `${years} Y ${months} M`;
+                });
+            }
+
+            function calculateEducationTotalDuration(education) {
+                return education.map(edu => {
+                    const startDate = moment(edu.start_date, 'DD-MM-YYYY');
+                    const endDate = moment(edu.end_date, 'DD-MM-YYYY');
+                    const years = endDate.diff(startDate, 'years');
+                    const months = endDate.diff(startDate, 'months') % 12;
+
+                    return `${years} Y ${months} M`;
+                });
+            }
+
+            const experienceDetails = calculateExperienceForEachElement(experience);
+            const totalEducationDuration = calculateEducationTotalDuration(education);
+
             await userModel.findByIdAndUpdate(userId, {
                 $set: {
                     phone,
-                    location,
-                    experience,
+                    experience: experience.map((exp, index) => ({
+                        total_exp: experienceDetails[index], // Store the total experience as a formatted string
+                        company_name: exp.company_name,
+                        position: exp.position,
+                        description: exp.description
+                    })),
+                    education: education.map((edu, index) => ({
+                        course_name: edu.course_name,
+                        provider: edu.provider,
+                        education_exp: totalEducationDuration[index],
+                    })),
                     certifications,
-                    github_link
+                    portfolio_link,
+                    about_us
                 }
-            })
+            });
             const updatedUser = await userModel.findById(userId)
             updatedUser.password = undefined
             res.status(200).send({ message: "Details Added", updatedUser: updatedUser })
@@ -137,6 +177,51 @@ module.exports = {
             const jobById = req.params.id
             const job = await jobModel.findById(jobById)
             res.status(200).send({ job: job })
+        } catch (error) {
+            console.log(error);
+            res.status(500).send({ error: 'Somthing error' })
+        }
+    },
+
+    jobsByskillSet: async (req, res) => {
+        try {
+            const userId = req.user._id;
+            const recruiterId = req.params.id
+            const skillset = req.body;
+            const candidate = await userModel.findById(userId);
+            const jobs = await jobModel.find({recruiter: recruiterId})
+            
+            if (!candidate) {
+                // Handle the case where the user is not found
+                return res.status(404).json({ message: 'User not found' });
+            }
+            
+            console.log(candidate);
+            
+            // Filter jobs based on the skillset criteria
+            const matchingJobs = jobs.filter(job => {
+                const requiredSkillSet = job.required_skill_set;
+            
+                if (!requiredSkillSet || requiredSkillSet.length === 0) {
+                    return false;
+                }
+            
+                // Check if all skills in req.body match the candidate's skills with equal or higher percentage
+                return skillset.every(reqSkill => {
+                    const candidateSkill = candidate.skill_set.find(
+                        candSkill => candSkill.skill === reqSkill.skill
+                    );
+            
+                    return (
+                        candidateSkill &&
+                        candidateSkill.percentage >= reqSkill.percentage
+                    );
+                });
+            });
+            
+            console.log(matchingJobs);
+            
+            res.status(200).send({ matchingJobs: matchingJobs })
         } catch (error) {
             console.log(error);
             res.status(500).send({ error: 'Somthing error' })
