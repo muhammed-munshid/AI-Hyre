@@ -186,10 +186,9 @@ module.exports = {
     jobsByskillSet: async (req, res) => {
         try {
             const userId = req.user._id;
-            const recruiterId = req.params.id
             const candidate = await userModel.findById(userId);
             const skillset = candidate.skill_set
-            const jobs = await jobModel.find({ recruiter: recruiterId })
+            const jobs = await jobModel.find()
 
             // Filter jobs based on the skillset criteria
             const matchingJobs = jobs.filter(job => {
