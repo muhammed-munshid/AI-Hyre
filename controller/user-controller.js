@@ -264,7 +264,7 @@ module.exports = {
     viewChat: async (req, res) => {
         try {
             const { id } = req.params;
-            const chats = await Chat.find({ users: id })
+            const chats = await chatModel.find({ users: id })
                 .populate({ path: 'users', select: 'name image', transform: 'username' })
                 .populate({
                     path: 'messages',
@@ -276,7 +276,7 @@ module.exports = {
                 })
                 .exec();
             const chatList = await Promise.all(chats.map(async chat => {
-                const unreadCount = await Chat.countDocuments({
+                const unreadCount = await chatModel.countDocuments({
                     _id: chat._id,
                     'messages.status': 'sent',
                     'messages.sender': { $ne: id }
