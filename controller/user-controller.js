@@ -1,10 +1,12 @@
 const userModel = require("../model/userModel");
 const bcrypt = require('bcrypt')
+const crypto = require('crypto-js')
 const jwt = require('jsonwebtoken');
 const jobModel = require("../model/jobModel");
 const moment = require('moment');
 const recruiterModel = require("../model/recruiterModel");
 const { candidates } = require("./recruiter-controller");
+const chatModel = require("../model/chatModel");
 
 module.exports = {
 
@@ -212,11 +214,141 @@ module.exports = {
 
             console.log(matchingJobs);
 
-            res.status(200).json( matchingJobs )
+            res.status(200).json(matchingJobs)
         } catch (error) {
             console.log(error);
             res.status(500).send({ error: 'Somthing error' })
         }
     },
+
+    messages: async (req, res) => {
+        try {
+            const chat = await chatModel.findById(req.params.id).populate('users messages.sender messages.receiver', 'name email');
+            res.send(chat.messages);
+        } catch (err) {
+            console.log(err)
+            res.status(400).send(err);
+        }
+    },
+
+    //list of all the chats that the user is a part of
+    v1Chat: async (req, res) => {
+        try {
+            const { id } = req.params;
+            const chats = await chatModel.find({ users: id })
+                .populate('users', 'username')
+                .populate({
+                    path: 'messages',
+                    options: { sort: { time: -1 }, limit: 1 },
+                    populate: {
+                        path: 'sender receiver',
+                        select: 'username'
+                    }
+                })
+                .exec();
+            const chatList = chats.map(chat => ({
+                id: chat._id,
+                users: chat.users,
+                post: chat.post,
+                lastMessage: chat.messages[0]?.message,
+                lastMessageTime: chat.messages[0]?.time
+            }));
+            res.send(chatList);
+        } catch (err) {
+            console.log(err);
+            res.status(400).send(err);
+        }
+    },
+
+    //same as above
+    viewChat: async (req, res) => {
+        try {
+            const { id } = req.params;
+            const chats = await Chat.find({ users: id })
+                .populate({ path: 'users', select: 'name image', transform: 'username' })
+                .populate({
+                    path: 'messages',
+                    options: { sort: { time: -1 }, limit: 1 },
+                    populate: {
+                        path: 'sender receiver',
+                        select: 'username'
+                    }
+                })
+                .exec();
+            const chatList = await Promise.all(chats.map(async chat => {
+                const unreadCount = await Chat.countDocuments({
+                    _id: chat._id,
+                    'messages.status': 'sent',
+                    'messages.sender': { $ne: id }
+                });
+                return {
+                    id: chat._id,
+                    users: chat.users,
+                    post: chat.post,
+                    lastMessage: chat.messages[0]?.message,
+                    lastMessageTime: chat.messages[0]?.time,
+                    unreadCount
+                };
+            }));
+            res.send(chatList);
+        } catch (err) {
+            console.log(err);
+            res.status(400).send(err);
+        }
+    },
+
+    doChat: async (req, res) => {
+        try {
+            const { users, post } = req.body;
+
+            // Check if a chat already exists between the two users and post
+            const existingChat = await chatModel.findOne({ users: { $all: users }, job_post: post });
+
+            if (existingChat) {
+                // A chat already exists, so return it instead of creating a new one
+                res.status(200).send(existingChat);
+                return;
+            }
+
+            // Create a new chat if one doesn't already exist
+            const chat = new chatModel({ users, post });
+            await chat.save();
+            res.status(201).send(chat);
+        } catch (err) {
+            res.status(400).send(err);
+        }
+    },
+
+    //Adding a message into a chat:
+    message: async (req, res) => {
+        try {
+            const chat = await chatModel.findById(req.params.id);
+            const { message, sender, receiver } = req.body;
+            const messageId = crypto.randomBytes(5).toString('hex');
+            chat.messages.push({ id: messageId, message, sender, receiver, status: 'sent', time: Date.now() });
+            await chat.save();
+            res.status(201).send(chat);
+        } catch (err) {
+            res.status(400).send(err);
+        }
+    },
+
+    //update the status of an individual message in a chat
+    updateChat: async (req, res) => {
+        try {
+            const { chatId, messageId } = req.params;
+            const { status } = req.body;
+            const chat = await chatModel.findById(chatId);
+            const messageIndex = chat.messages.findIndex(message => message.id === messageId);
+            if (messageIndex === -1) {
+                return res.status(404).send({ error: 'Message not found' });
+            }
+            chat.messages[messageIndex].status = status;
+            await chat.save();
+            res.send(chat);
+        } catch (err) {
+            res.status(400).send(err);
+        }
+    }
 
 }

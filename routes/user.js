@@ -9,11 +9,18 @@ router.get('/sign-in-jwt',passport.authenticate('user-jwt', { session: false }),
 router.get('/jobs',passport.authenticate('user-jwt', { session: false }),userController.jobs)
 router.get('/job-by-id/:id',passport.authenticate('user-jwt', { session: false }),userController.jobById)
 router.get('/jobs-by-skillset',passport.authenticate('user-jwt', { session: false }),userController.jobsByskillSet)
+router.get('/chat/:id/messages',userController.messages)
+router.get('/chat/v1/:id/user',userController.v1Chat)
+router.get('/chat/:id/user',userController.viewChat)
 
 router.post('/sign-up',userController.signUp)
 router.post('/sign-in',userController.signIn)
+router.post('/chat', userController.doChat)
+router.post('/chat/:id/message', userController.message)
 
 router.put('/add-profile',passport.authenticate('user-jwt', { session: false }),userController.addProfile)
 router.put('/add-details',passport.authenticate('user-jwt', { session: false }),userController.addDetails)
+
+router.patch('/chats/:chatId/messages/:messageId', userController.updateChat)
 
 module.exports = router
