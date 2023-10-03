@@ -297,13 +297,14 @@ module.exports = {
         }
     },
 
-    doChat: async (req, res) => {
+    createChat: async (req, res) => {
         try {
-            const { users, post } = req.body;
+            const { users, job } = req.body;
 
             // Check if a chat already exists between the two users and post
-            const existingChat = await chatModel.findOne({ users: { $all: users }, job_post: post });
-
+            const existingChat = await chatModel.findOne({ users: users[0], recruiter: users[1], job: job },{ maxTimeMS: 20000 });
+            console.log('exist:',existingChat);
+            
             if (existingChat) {
                 // A chat already exists, so return it instead of creating a new one
                 res.status(200).send(existingChat);
@@ -311,10 +312,11 @@ module.exports = {
             }
 
             // Create a new chat if one doesn't already exist
-            const chat = new chatModel({ users, post });
+            const chat = new chatModel({ users: users[0], recruiter: users[1], job });
             await chat.save();
             res.status(201).send(chat);
         } catch (err) {
+            console.log(err);
             res.status(400).send(err);
         }
     },
@@ -329,6 +331,7 @@ module.exports = {
             await chat.save();
             res.status(201).send(chat);
         } catch (err) {
+            console.log(err);
             res.status(400).send(err);
         }
     },

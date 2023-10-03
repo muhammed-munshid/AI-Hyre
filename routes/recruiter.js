@@ -3,7 +3,7 @@ const recruiterController = require('../controller/recruiter-controller');
 const passport = require('passport')
 const router = express.Router();
 
-router.get('/sign-in-jwt', passport.authenticate('recruiter-jwt', { session: false }), recruiterController.signInWithJwt)
+// router.get('/sign-in-jwt', passport.authenticate('recruiter-jwt', { session: false }), recruiterController.signInWithJwt)
 router.get('/candidates', passport.authenticate('recruiter-jwt', { session: false }), recruiterController.candidates)
 router.get('/candidate-info/:id', passport.authenticate('recruiter-jwt', { session: false }), recruiterController.candidateById)
 router.get('/jobs', passport.authenticate('recruiter-jwt', { session: false }), recruiterController.jobs)

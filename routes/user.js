@@ -15,8 +15,8 @@ router.get('/chat/:id/user',userController.viewChat)
 
 router.post('/sign-up',userController.signUp)
 router.post('/sign-in',userController.signIn)
-router.post('/chat', userController.doChat)
-router.post('/chat/:id/message', userController.message)
+router.post('/chat/create', userController.createChat)
+router.post('/chat/:id/messages', userController.message)
 
 router.put('/add-profile',passport.authenticate('user-jwt', { session: false }),userController.addProfile)
 router.put('/add-details',passport.authenticate('user-jwt', { session: false }),userController.addDetails)

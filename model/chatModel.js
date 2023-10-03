@@ -7,12 +7,12 @@ const chatSchema = new mongoose.Schema({
         ref: 'recruiterModel',
         required: true
     },
-    candidate: {
+    users: {
         type: Schema.Types.ObjectId,
-        ref: 'candidateModel',
+        ref: 'userModel',
         required: true
     },
-    job_post: {
+    job: {
         type: Schema.Types.ObjectId,
         ref: 'jobModel',
         required: true
