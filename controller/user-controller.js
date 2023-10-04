@@ -1,6 +1,6 @@
 const userModel = require("../model/userModel");
 const bcrypt = require('bcrypt')
-const crypto = require('crypto-js')
+const crypto = require('crypto')
 const jwt = require('jsonwebtoken');
 const jobModel = require("../model/jobModel");
 const moment = require('moment');
@@ -13,6 +13,7 @@ module.exports = {
     signUp: async (req, res) => {
         try {
             let { email, password } = req.body;
+            console.log(req.body);
             const salt = await bcrypt.genSalt(10)
             const hashedPassword = await bcrypt.hash(password, salt)
             password = hashedPassword
@@ -39,16 +40,37 @@ module.exports = {
         try {
             const { email, password } = req.body;
             const user = await userModel.findOne({ email: email })
+            const recruiter = await recruiterModel.findOne({ email: email })
             if (user) {
+                const userPayload = {
+                    id: user._id,
+                    role: 'user', // Add the role field
+                  };
                 const isMatchPswrd = await bcrypt.compare(password, user.password)
                 if (!isMatchPswrd) {
                     res.status(200).send({ message: "Incorrect Password" })
                 } else {
                     // eslint-disable-next-line no-undef
-                    const token = jwt.sign({ id: user._id }, process.env.JWT_SECRET_USER, {
+                    const token = jwt.sign(userPayload, process.env.JWT_SECRET, {
                         expiresIn: '30d'
                     })
                     res.status(200).send({ message: "Login Successfull", userId: user._id, userName: user.name, token: token })
+                }
+            }
+            else if (recruiter) {
+                const recruiterPayload = {
+                    id: recruiter._id,
+                    role: 'recruiter', // Add the role field
+                  };
+                const isMatchPswrd = await bcrypt.compare(password, recruiter.password)
+                if (!isMatchPswrd) {
+                    res.status(200).send({ message: "Incorrect Password" })
+                } else {
+                    // eslint-disable-next-line no-undef
+                    const token = jwt.sign(recruiterPayload, process.env.JWT_SECRET, {
+                        expiresIn: '30d'
+                    })
+                    res.status(200).send({ message: "Login Successful", recruiterId: recruiter._id, recruiterName: recruiter.name, token: token })
                 }
             } else {
                 res.status(200).send({ message: "Incorrect Email or Password" })
@@ -223,8 +245,24 @@ module.exports = {
 
     messages: async (req, res) => {
         try {
-            const chat = await chatModel.findById(req.params.id).populate('users messages.sender messages.receiver', 'name email');
-            res.send(chat.messages);
+            const chat = await chatModel
+            .findById(req.params.id)
+            .populate({
+              path: 'users',
+              select: 'name email',
+            })
+            .populate({
+              path: 'messages.sender',
+              select: 'name email',
+            })
+            .populate({
+              path: 'messages.receiver',
+              select: 'name email',
+            });
+          
+        //   res.send(chat.messages);
+          
+            res.send(chat);
         } catch (err) {
             console.log(err)
             res.status(400).send(err);

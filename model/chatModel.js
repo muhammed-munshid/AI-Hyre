@@ -47,4 +47,4 @@ const chatSchema = new mongoose.Schema({
     }]
 })
 
-module.exports = adminModel = mongoose.model('chats', chatSchema)
+module.exports = chatModel = mongoose.model('chats', chatSchema)

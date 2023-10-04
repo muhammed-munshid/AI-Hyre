@@ -44,4 +44,4 @@ const jobSchema = new mongoose.Schema({
     }
 })
 
-module.exports = adminModel = mongoose.model('jobs', jobSchema)
+module.exports = jobModel = mongoose.model('jobs', jobSchema)

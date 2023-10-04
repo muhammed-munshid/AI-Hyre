@@ -48,7 +48,7 @@ module.exports = {
                     res.status(200).send({ message: "Incorrect Password" })
                 } else {
                     // eslint-disable-next-line no-undef
-                    const token = jwt.sign({ id: recruiter._id }, process.env.JWT_SECRET_RECRUITER, {
+                    const token = jwt.sign({ id: recruiter._id }, process.env.JWT_SECRET, {
                         expiresIn: '30d'
                     })
                     res.status(200).send({ message: "Login Successful", recruiterId: recruiter._id, recruiterName: recruiter.name, token: token })
