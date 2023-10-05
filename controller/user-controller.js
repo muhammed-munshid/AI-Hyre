@@ -26,9 +26,9 @@ module.exports = {
                 await user.save();
                 const newUser = await userModel.findOne({ email: email })
                 newUser.password = undefined
-                res.status(200).send({ message: 'Your Sign-up verification was successful', newUser: newUser })
+                res.status(200).send({ message: 'Signup Success', newUser: newUser })
             } else {
-                res.status(200).send({ message: 'You are already registered' })
+                res.status(403).send({ message: 'You are already registered' })
             }
         } catch (error) {
             console.log(error);
@@ -54,7 +54,7 @@ module.exports = {
                     const token = jwt.sign(userPayload, process.env.JWT_SECRET, {
                         expiresIn: '30d'
                     })
-                    res.status(200).send({ message: "Login Successfull", userId: user._id, userName: user.name, token: token })
+                    res.status(200).send({ message: "Login Success", userId: user._id, userName: user.name, token: token })
                 }
             }
             else if (recruiter) {
