@@ -61,7 +61,7 @@ module.exports = {
                     const token = jwt.sign(userPayload, process.env.JWT_SECRET, {
                         expiresIn: '30d'
                     })
-                    res.status(200).send({ message: "Login Success", userId: user._id, userName: user.name, token: token })
+                    res.status(200).send({ message: "Login Success", userId: user._id, userName: user.name, token: token, candidate:true })
                 }
             }
             else if (recruiter) {
@@ -77,7 +77,7 @@ module.exports = {
                     const token = jwt.sign(recruiterPayload, process.env.JWT_SECRET, {
                         expiresIn: '30d'
                     })
-                    res.status(200).send({ message: "Login Successful", recruiterId: recruiter._id, recruiterName: recruiter.name, token: token })
+                    res.status(200).send({ message: "Login Successful", recruiterId: recruiter._id, recruiterName: recruiter.name, token: token, recruiter: true })
                 }
             } else {
                 res.status(401).send({ message: "Incorrect Email or Password" })
