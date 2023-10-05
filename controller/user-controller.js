@@ -44,6 +44,7 @@ module.exports = {
 
     signIn: async (req, res) => {
         try {
+            console.log('reqq',req.body);
             const { email, password } = req.body;
             const user = await userModel.findOne({ email: email })
             const recruiter = await recruiterModel.findOne({ email: email })
@@ -70,7 +71,7 @@ module.exports = {
                   };
                 const isMatchPswrd = await bcrypt.compare(password, recruiter.password)
                 if (!isMatchPswrd) {
-                    res.status(200).send({ message: "Incorrect Password" })
+                    res.status(401).send({ message: "Incorrect Password" })
                 } else {
                     // eslint-disable-next-line no-undef
                     const token = jwt.sign(recruiterPayload, process.env.JWT_SECRET, {

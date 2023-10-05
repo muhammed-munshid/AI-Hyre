@@ -5,10 +5,11 @@ const JwtStrategy = require('passport-jwt').Strategy;
 const ExtractJwt = require('passport-jwt').ExtractJwt;
 // const GoogleStrategy = require('passport-google-oauth20').Strategy;
 
-const jwtOptions = {
-	jwtFromRequest: ExtractJwt.fromAuthHeaderAsBearerToken(),
-	secretOrKey: process.env.JWT_SECRET,
-};
+// const jwtOptions = {
+// 	jwtFromRequest: ExtractJwt.fromAuthHeaderAsBearerToken(),
+// 	secretOrKey: process.env.JWT_SECRET,
+// };
+
 
 passport.use('jwt', new JwtStrategy(
 	{
@@ -17,7 +18,8 @@ passport.use('jwt', new JwtStrategy(
 		passReqToCallback: true, // Pass the req object to the callback
 	},
 	async (req, jwtPayload, done) => {
-		console.log('jwt:', jwtPayload);
+		console.log('body: ',req.body);
+		// console.log('jwt:', jwtPayload);
 		try {
 			if (jwtPayload.role === 'user') {
 				const user = await userModel.findById(jwtPayload.id).exec();
