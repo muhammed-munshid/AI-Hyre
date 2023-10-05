@@ -13,7 +13,6 @@ module.exports = {
     signUp: async (req, res) => {
         try {
             let { email, password } = req.body;
-            console.log(req.body);
             const salt = await bcrypt.genSalt(10)
             const hashedPassword = await bcrypt.hash(password, salt)
             password = hashedPassword
@@ -55,7 +54,7 @@ module.exports = {
                   };
                 const isMatchPswrd = await bcrypt.compare(password, user.password)
                 if (!isMatchPswrd) {
-                    res.status(200).send({ message: "Incorrect Password" })
+                    res.status(401).send({ message: "Incorrect Password" })
                 } else {
                     // eslint-disable-next-line no-undef
                     const token = jwt.sign(userPayload, process.env.JWT_SECRET, {
@@ -80,7 +79,7 @@ module.exports = {
                     res.status(200).send({ message: "Login Successful", recruiterId: recruiter._id, recruiterName: recruiter.name, token: token })
                 }
             } else {
-                res.status(200).send({ message: "Incorrect Email or Password" })
+                res.status(401).send({ message: "Incorrect Email or Password" })
             }
         } catch (error) {
             console.log(error);
@@ -125,6 +124,26 @@ module.exports = {
         }
     },
 
+    updateCandidate: async (req, res) => {
+        try {
+            const userId = req.user._id
+            const { name, status, phone, profile_pic } = req.body;
+            await userModel.findByIdAndUpdate(userId, {
+                $set: {
+                    name,
+                    status,
+                    phone,
+                    profile_pic
+                }
+            })
+            const updatedUser = await userModel.findById(userId)
+            updatedUser.password = undefined
+            res.status(200).send({ message: "Candidate Updated", updatedUser: updatedUser })
+        } catch (error) {
+            console.log(error);
+            res.status(500).send({ error: 'Somthing error' })
+        }
+    },
 
     addProfile: async (req, res) => {
         try {

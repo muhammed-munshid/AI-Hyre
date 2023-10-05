@@ -25,6 +25,7 @@ router.post('/sign-in', userController.signIn)
 router.post('/chat/create', userController.createChat)
 router.post('/chat/:id/messages', userController.message)
 
+router.put('/update-candidate', passport.authenticate('jwt', { session: false }), userController.updateCandidate)
 router.put('/add-profile', passport.authenticate('jwt', { session: false }), userController.addProfile)
 router.put('/add-details', passport.authenticate('jwt', { session: false }), userController.addDetails)
 
