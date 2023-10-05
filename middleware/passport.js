@@ -3,7 +3,7 @@ const userModel = require('../model/userModel');
 const recruiterModel = require('../model/recruiterModel');
 const JwtStrategy = require('passport-jwt').Strategy;
 const ExtractJwt = require('passport-jwt').ExtractJwt;
-const GoogleStrategy = require('passport-google-oauth20').Strategy;
+// const GoogleStrategy = require('passport-google-oauth20').Strategy;
 
 const jwtOptions = {
 	jwtFromRequest: ExtractJwt.fromAuthHeaderAsBearerToken(),
@@ -48,12 +48,12 @@ passport.use('jwt', new JwtStrategy(
 ));
 
 
-passport.use(new GoogleStrategy({
-	clientID: process.env.GOOGLE_CLIENT_ID,
-	clientSecret: process.env.GOOGLE_CLIENT_SECRET,
-	callbackURL: 'http://localhost:3000/auth/google/callback', // Change to your callback URL
-}, (accessToken, refreshToken, profile, done) => {
-	// Here, you can save user data or perform other actions
-	return done(null, profile);
-}));
+// passport.use(new GoogleStrategy({
+// 	clientID: process.env.GOOGLE_CLIENT_ID,
+// 	clientSecret: process.env.GOOGLE_CLIENT_SECRET,
+// 	callbackURL: 'http://localhost:3000/auth/google/callback', // Change to your callback URL
+// }, (accessToken, refreshToken, profile, done) => {
+// 	// Here, you can save user data or perform other actions
+// 	return done(null, profile);
+// }));
 
