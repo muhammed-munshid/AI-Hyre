@@ -82,21 +82,35 @@ module.exports = {
     },
 
     signInWithJwt: async (req, res) => {
+        const jwtPayload = req.jwtPayload
         try {
-            if (req.user) {
-                await userModel.findByIdAndUpdate(req.user._id, {
-                    $set: {
-                        user_verified: true
+            if (jwtPayload.role === 'user') {
+                if (req.user) {
+                    await userModel.findByIdAndUpdate(req.user._id, {
+                        $set: {
+                            user_verified: true
+                        }
+                    })
+                    const user = await userModel.findById(req.user._id)
+                    if (user.on_boarding_1 == true) {
+                        res.json({ authorization: true, userId: req.user._id, username: req.user.email, on_boarding_1: true });
+                    } else {
+                        res.json({ authorization: true, userId: req.user._id, username: req.user.email, on_boarding_1: false })
                     }
-                })
-                const user = await userModel.findById(req.user._id)
-                if (user.on_boarding_1 == true) {
-                    res.json({ authorization: true, userId: req.user._id, username: req.user.email, on_boarding_1: true });
                 } else {
-                    res.json({ authorization: true, userId: req.user._id, username: req.user.email, on_boarding_1: false })
+                    res.json({ authorization: false });
                 }
             } else {
-                res.json({ authorization: false });
+                if (req.user) {
+                    const recruiter = await recruiterModel.findById(req.user._id)
+                    if (recruiter.on_boarding == true) {
+                        res.json({ authorization: true, recruiterId: req.user._id, recruiterName: req.user.email, on_boarding: true });
+                    } else {
+                        res.json({ authorization: true, recruiterId: req.user._id, recruiterName: req.user.email, on_boarding: false });
+                    }
+                } else {
+                    res.json({ authorization: false });
+                }
             }
         } catch (error) {
             console.log(error);
@@ -245,23 +259,7 @@ module.exports = {
 
     messages: async (req, res) => {
         try {
-            const chat = await chatModel
-            .findById(req.params.id)
-            .populate({
-              path: 'users',
-              select: 'name email',
-            })
-            .populate({
-              path: 'messages.sender',
-              select: 'name email',
-            })
-            .populate({
-              path: 'messages.receiver',
-              select: 'name email',
-            });
-          
-        //   res.send(chat.messages);
-          
+            const chat = await chatModel.findById(req.params.id).populate('users messages.sender messages.receiver', 'name email');
             res.send(chat);
         } catch (err) {
             console.log(err)
