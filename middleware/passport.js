@@ -18,8 +18,6 @@ passport.use('jwt', new JwtStrategy(
 		passReqToCallback: true, // Pass the req object to the callback
 	},
 	async (req, jwtPayload, done) => {
-		console.log('body: ',req.body);
-		// console.log('jwt:', jwtPayload);
 		try {
 			if (jwtPayload.role === 'user') {
 				const user = await userModel.findById(jwtPayload.id).exec();

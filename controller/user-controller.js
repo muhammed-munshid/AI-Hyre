@@ -28,11 +28,11 @@ module.exports = {
                 const userPayload = {
                     id: user._id,
                     role: 'user',
-                  };
+                };
                 const token = jwt.sign(userPayload, process.env.JWT_SECRET, {
                     expiresIn: '30d'
                 })
-                res.status(200).send({ message: 'Signup Success', newUser: newUser, token:token })
+                res.status(200).send({ message: 'Signup Success', _id: newUser._id, name: newUser.name, token: token })
             } else {
                 res.status(403).send({ message: 'You are already registered' })
             }
@@ -44,7 +44,6 @@ module.exports = {
 
     signIn: async (req, res) => {
         try {
-            console.log('reqq',req.body);
             const { email, password } = req.body;
             const user = await userModel.findOne({ email: email })
             const recruiter = await recruiterModel.findOne({ email: email })
@@ -52,7 +51,7 @@ module.exports = {
                 const userPayload = {
                     id: user._id,
                     role: 'user',
-                  };
+                };
                 const isMatchPswrd = await bcrypt.compare(password, user.password)
                 if (!isMatchPswrd) {
                     res.status(401).send({ message: "Incorrect Password" })
@@ -61,14 +60,14 @@ module.exports = {
                     const token = jwt.sign(userPayload, process.env.JWT_SECRET, {
                         expiresIn: '30d'
                     })
-                    res.status(200).send({ message: "Login Success", userId: user._id, userName: user.name, token: token, candidate:true })
+                    res.status(200).send({ message: "Login Success", _id: user._id, name: user.name, token: token, candidate: true })
                 }
             }
             else if (recruiter) {
                 const recruiterPayload = {
                     id: recruiter._id,
                     role: 'recruiter',
-                  };
+                };
                 const isMatchPswrd = await bcrypt.compare(password, recruiter.password)
                 if (!isMatchPswrd) {
                     res.status(401).send({ message: "Incorrect Password" })
@@ -77,7 +76,7 @@ module.exports = {
                     const token = jwt.sign(recruiterPayload, process.env.JWT_SECRET, {
                         expiresIn: '30d'
                     })
-                    res.status(200).send({ message: "Login Successful", recruiterId: recruiter._id, recruiterName: recruiter.name, token: token, recruiter: true })
+                    res.status(200).send({ message: "Login Successful", id: recruiter._id, name: recruiter.name, token: token, candidate: false })
                 }
             } else {
                 res.status(401).send({ message: "Incorrect Email or Password" })
@@ -128,18 +127,24 @@ module.exports = {
     updateCandidate: async (req, res) => {
         try {
             const userId = req.user._id
-            const { name, status, phone, profile_pic } = req.body;
+            const { name, status, skill_set, profile_pic, phone, experience, education, certifications, portfolio_link, about_us } = req.body;
             await userModel.findByIdAndUpdate(userId, {
                 $set: {
                     name,
                     status,
+                    skill_set,
+                    profile_pic,
                     phone,
-                    profile_pic
+                    experience,
+                    education,
+                    certifications,
+                    portfolio_link,
+                    about_us
                 }
             })
             const updatedUser = await userModel.findById(userId)
             updatedUser.password = undefined
-            res.status(200).send({ message: "Candidate Updated", updatedUser: updatedUser })
+            res.status(200).send({ message: "Candidate updated", _id: updatedUser._id })
         } catch (error) {
             console.log(error);
             res.status(500).send({ error: 'Somthing error' })
@@ -284,6 +289,17 @@ module.exports = {
         }
     },
 
+    viewProfile: async (req, res) => {
+        try {
+            const id = req.params.id
+            const profile = await userModel.findById(id)
+            res.status(200).send(profile);
+        } catch (err) {
+            console.log(err)
+            res.status(400).send(err);
+        }
+    },
+
     messages: async (req, res) => {
         try {
             const chat = await chatModel.findById(req.params.id).populate('users messages.sender messages.receiver', 'name email');
@@ -365,9 +381,9 @@ module.exports = {
             const { users, job } = req.body;
 
             // Check if a chat already exists between the two users and post
-            const existingChat = await chatModel.findOne({ users: users[0], recruiter: users[1], job: job },{ maxTimeMS: 20000 });
-            console.log('exist:',existingChat);
-            
+            const existingChat = await chatModel.findOne({ users: users[0], recruiter: users[1], job: job }, { maxTimeMS: 20000 });
+            console.log('exist:', existingChat);
+
             if (existingChat) {
                 // A chat already exists, so return it instead of creating a new one
                 res.status(200).send(existingChat);

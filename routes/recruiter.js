@@ -7,6 +7,7 @@ router.get('/candidates', passport.authenticate('jwt', { session: false }), recr
 router.get('/candidate-info/:id', passport.authenticate('jwt', { session: false }), recruiterController.candidateById)
 router.get('/jobs', passport.authenticate('jwt', { session: false }), recruiterController.jobs)
 router.get('/job-by-id/:id', passport.authenticate('jwt', { session: false }), recruiterController.jobById)
+router.get('/profile/:id', passport.authenticate('jwt', { session: false }), recruiterController.viewProfile)
 
 router.post('/sign-up', recruiterController.signUp)
 router.post('/add-job', passport.authenticate('jwt', { session: false }), recruiterController.addJob)

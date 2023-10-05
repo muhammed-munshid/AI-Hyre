@@ -35,7 +35,7 @@ module.exports = {
                 const token = jwt.sign(recruiterPayload, process.env.JWT_SECRET, {
                     expiresIn: '30d'
                 })
-                res.status(200).send({ message: 'Signup Success', newRecruiter: newRecruiter, token: token })
+                res.status(200).send({ message: 'Signup Success', _id: newRecruiter._id, name: newRecruiter.name, token: token })
             } else {
                 res.status(403).send({ message: 'You are already registered' })
             }
@@ -84,6 +84,17 @@ module.exports = {
         } catch (error) {
             console.log(error);
             res.status(500).send({ error: 'Failed to check JWT' })
+        }
+    },
+
+    viewProfile: async (req, res) => {
+        try {
+            const id = req.params.id
+            const profile = await userModel.findById(id)
+            res.status(200).send(profile);
+        } catch (err) {
+            console.log(err)
+            res.status(400).send(err);
         }
     },
 
