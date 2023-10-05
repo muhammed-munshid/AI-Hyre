@@ -28,9 +28,16 @@ module.exports = {
                 await recruiter.save();
                 const newRecruiter = await recruiterModel.findOne({ email: email })
                 newRecruiter.password = undefined
-                res.status(200).send({ message: 'Your Sign-up verification was successful', newRecruiter: newRecruiter })
+                const recruiterPayload = {
+                    id: recruiter._id,
+                    role: 'recruiter',
+                };
+                const token = jwt.sign(recruiterPayload, process.env.JWT_SECRET, {
+                    expiresIn: '30d'
+                })
+                res.status(200).send({ message: 'Signup Success', newRecruiter: newRecruiter, token: token })
             } else {
-                res.status(200).send({ message: 'You are already registered' })
+                res.status(403).send({ message: 'You are already registered' })
             }
         } catch (error) {
             console.log(error);

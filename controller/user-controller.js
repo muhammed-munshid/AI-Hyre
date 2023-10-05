@@ -26,7 +26,14 @@ module.exports = {
                 await user.save();
                 const newUser = await userModel.findOne({ email: email })
                 newUser.password = undefined
-                res.status(200).send({ message: 'Signup Success', newUser: newUser })
+                const userPayload = {
+                    id: user._id,
+                    role: 'user',
+                  };
+                const token = jwt.sign(userPayload, process.env.JWT_SECRET, {
+                    expiresIn: '30d'
+                })
+                res.status(200).send({ message: 'Signup Success', newUser: newUser, token:token })
             } else {
                 res.status(403).send({ message: 'You are already registered' })
             }
@@ -44,7 +51,7 @@ module.exports = {
             if (user) {
                 const userPayload = {
                     id: user._id,
-                    role: 'user', // Add the role field
+                    role: 'user',
                   };
                 const isMatchPswrd = await bcrypt.compare(password, user.password)
                 if (!isMatchPswrd) {
@@ -60,7 +67,7 @@ module.exports = {
             else if (recruiter) {
                 const recruiterPayload = {
                     id: recruiter._id,
-                    role: 'recruiter', // Add the role field
+                    role: 'recruiter',
                   };
                 const isMatchPswrd = await bcrypt.compare(password, recruiter.password)
                 if (!isMatchPswrd) {
