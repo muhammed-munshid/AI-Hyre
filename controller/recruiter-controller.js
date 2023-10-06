@@ -58,7 +58,7 @@ module.exports = {
                     const token = jwt.sign({ id: recruiter._id }, process.env.JWT_SECRET, {
                         expiresIn: '30d'
                     })
-                    res.status(200).send({ message: "Login Successful", recruiterId: recruiter._id, recruiterName: recruiter.name, token: token })
+                    res.status(200).send({ message: "Login Successful", recruiterId: recruiter._id, recruiterName: recruiter.name, on_boarding_1: recruiter, on_boarding_2: recruiter.on_boarding_2, token: token })
                 }
             } else {
                 res.status(200).send({ message: "Incorrect Email or Password" })
@@ -69,28 +69,10 @@ module.exports = {
         }
     },
 
-    signInWithJwt: async (req, res) => {
-        try {
-            if (req.user) {
-                const recruiter = await recruiterModel.findById(req.user._id)
-                if (recruiter.on_boarding == true) {
-                    res.json({ authorization: true, recruiterId: req.user._id, recruiterName: req.user.email, on_boarding: true });
-                } else {
-                    res.json({ authorization: true, recruiterId: req.user._id, recruiterName: req.user.email, on_boarding: false });
-                }
-            } else {
-                res.json({ authorization: false });
-            }
-        } catch (error) {
-            console.log(error);
-            res.status(500).send({ error: 'Failed to check JWT' })
-        }
-    },
-
     viewProfile: async (req, res) => {
         try {
-            const id = req.params.id
-            const profile = await userModel.findById(id)
+            const id = req.user._id
+            const profile = await recruiterModel.findById(id)
             res.status(200).send(profile);
         } catch (err) {
             console.log(err)

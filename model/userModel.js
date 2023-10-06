@@ -49,6 +49,10 @@ const userSchema = new mongoose.Schema({
         type: Boolean,
         default: false
     },
+    on_boarding_2: {
+        type: Boolean,
+        default: false
+    },
     education: [{
         course_name: {
             type: String

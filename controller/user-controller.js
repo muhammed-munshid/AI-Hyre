@@ -60,7 +60,7 @@ module.exports = {
                     const token = jwt.sign(userPayload, process.env.JWT_SECRET, {
                         expiresIn: '30d'
                     })
-                    res.status(200).send({ message: "Login Success", _id: user._id, name: user.name, token: token, candidate: true })
+                    res.status(200).send({ message: "Login Success", _id: user._id, name: user.name, onboarding_1: user.onboarding_1, onboarding_2: user.onboarding_2, token: token, candidate: true })
                 }
             }
             else if (recruiter) {
@@ -76,7 +76,7 @@ module.exports = {
                     const token = jwt.sign(recruiterPayload, process.env.JWT_SECRET, {
                         expiresIn: '30d'
                     })
-                    res.status(200).send({ message: "Login Successful", id: recruiter._id, name: recruiter.name, token: token, candidate: false })
+                    res.status(200).send({ message: "Login Successful", onboarding: recruiter.on_boarding, id: recruiter._id, name: recruiter.name, token: token, candidate: false })
                 }
             } else {
                 res.status(401).send({ message: "Incorrect Email or Password" })
@@ -98,22 +98,14 @@ module.exports = {
                         }
                     })
                     const user = await userModel.findById(req.user._id)
-                    if (user.on_boarding_1 == true) {
-                        res.json({ authorization: true, userId: req.user._id, username: req.user.email, on_boarding_1: true });
-                    } else {
-                        res.json({ authorization: true, userId: req.user._id, username: req.user.email, on_boarding_1: false })
-                    }
+                    res.json({ authorization: true, _id: req.user._id, name: req.user.email, onboarding_1: req.user.on_boarding_1, onboarding_2: req.user.on_boarding_2, candidate:true });
                 } else {
                     res.json({ authorization: false });
                 }
             } else {
                 if (req.user) {
                     const recruiter = await recruiterModel.findById(req.user._id)
-                    if (recruiter.on_boarding == true) {
-                        res.json({ authorization: true, recruiterId: req.user._id, recruiterName: req.user.email, on_boarding: true });
-                    } else {
-                        res.json({ authorization: true, recruiterId: req.user._id, recruiterName: req.user.email, on_boarding: false });
-                    }
+                    res.json({ authorization: true, _id: req.user._id, name: req.user.email, on_boarding: req.user.on_boarding, candidate:false });
                 } else {
                     res.json({ authorization: false });
                 }
@@ -220,7 +212,8 @@ module.exports = {
                     })),
                     certifications,
                     portfolio_link,
-                    about_us
+                    about_us,
+                    on_boarding_2: true
                 }
             });
             const updatedUser = await userModel.findById(userId)
@@ -291,7 +284,7 @@ module.exports = {
 
     viewProfile: async (req, res) => {
         try {
-            const id = req.params.id
+            const id = req.user._id
             const profile = await userModel.findById(id)
             res.status(200).send(profile);
         } catch (err) {
