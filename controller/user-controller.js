@@ -423,13 +423,13 @@ module.exports = {
         try {
             const { id } = req.params;
             const chats = await chatModel.find({ candidate: id })
-                .populate({ path: 'users', select: 'name image', transform: 'username' })
+                .populate({ path: 'users', select: 'name', transform: 'name' })
                 .populate({
                     path: 'messages',
                     options: { sort: { time: -1 }, limit: 1 },
                     populate: {
                         path: 'sender receiver',
-                        select: 'username'
+                        select: 'name'
                     }
                 })
                 .exec();
