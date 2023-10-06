@@ -145,6 +145,7 @@ module.exports = {
 
     addProfile: async (req, res) => {
         try {
+            console.log('Hello');
             const userId = req.user._id
             const { Firstname, Lastname, status, skill_set, profile_pic } = req.body;
             await userModel.findByIdAndUpdate(userId, {
@@ -356,9 +357,32 @@ module.exports = {
 
     messages: async (req, res) => {
         try {
-            const chat = await chatModel.findById(req.params.id).populate('users messages.sender messages.receiver', 'name email');
-            console.log('chat', chat)
-            res.send(chat);
+            const chat = await chatModel.findById(req.params.id)
+            .populate({
+              path: 'messages.sender',
+              select: 'name email',
+              match: { senderType: 'user' }, // Match senderType 'user'
+            })
+            .populate({
+              path: 'messages.sender',
+              select: 'name email',
+              match: { senderType: 'recruiter' }, // Match senderType 'recruiter'
+            })
+            .populate({
+              path: 'messages.receiver',
+              select: 'name email',
+              match: { receiverType: 'user' }, // Match receiverType 'user'
+            })
+            .populate({
+              path: 'messages.receiver',
+              select: 'name email',
+              match: { receiverType: 'recruiter' }, // Match receiverType 'recruiter'
+            })
+            .exec();
+          
+          console.log('chat', chat);
+          res.send(chat);
+          
         } catch (err) {
             console.log(err)
             res.status(400).send(err);
@@ -369,7 +393,7 @@ module.exports = {
     v1Chat: async (req, res) => {
         try {
             const { id } = req.params;
-            const chats = await chatModel.find({ users: id })
+            const chats = await chatModel.find({ candidate: id })
                 .populate('users', 'username')
                 .populate({
                     path: 'messages',
@@ -382,7 +406,7 @@ module.exports = {
                 .exec();
             const chatList = chats.map(chat => ({
                 id: chat._id,
-                candidate: chat.users,
+                candidate: chat.candidate,
                 post: chat.post,
                 lastMessage: chat.messages[0]?.message,
                 lastMessageTime: chat.messages[0]?.time
@@ -398,7 +422,7 @@ module.exports = {
     viewChat: async (req, res) => {
         try {
             const { id } = req.params;
-            const chats = await chatModel.find({ users: id })
+            const chats = await chatModel.find({ candidate: id })
                 .populate({ path: 'users', select: 'name image', transform: 'username' })
                 .populate({
                     path: 'messages',
@@ -417,7 +441,7 @@ module.exports = {
                 });
                 return {
                     id: chat._id,
-                    candidate: chat.users,
+                    candidate: chat.candidate,
                     post: chat.post,
                     lastMessage: chat.messages[0]?.message,
                     lastMessageTime: chat.messages[0]?.time,
@@ -458,12 +482,33 @@ module.exports = {
     //Adding a message into a chat:
     message: async (req, res) => {
         try {
-            const chat = await chatModel.findById(req.params.id).populate('recruiter users')
+            const chat = await chatModel.findById(req.params.id);
+
+            if (!chat) {
+                return res.status(404).send({ error: 'Chat not found' }); // Handle chat not found
+            }
+            
             const { message, sender, receiver } = req.body;
             const messageId = crypto.randomBytes(5).toString('hex');
-            chat.messages.push({ id: messageId, message, sender, receiver, status: 'sent', time: Date.now() });
+            
+            const senderType = 'users'; // Set the sender type ('users' or 'recruiter')
+            const receiverType = 'recruiters'; // Set the receiver type ('recruiter' or 'users')
+            
+            chat.messages.push({
+                id: messageId,
+                message,
+                sender,
+                receiver,
+                senderType,
+                receiverType,
+                status: 'sent',
+                time: Date.now(),
+            });
+            
             await chat.save();
+            
             res.status(201).send(chat);
+                      
         } catch (err) {
             console.log(err);
             res.status(400).send(err);
