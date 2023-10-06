@@ -32,7 +32,7 @@ module.exports = {
                 const token = jwt.sign(userPayload, process.env.JWT_SECRET, {
                     expiresIn: '30d'
                 })
-                res.status(200).send({ message: 'Signup Success', _id: newUser._id, name: newUser.name, token: token })
+                res.status(200).send({ message: 'Signup Success', _id: newUser._id, candidate:true, token: token })
             } else {
                 res.status(403).send({ message: 'You are already registered' })
             }
@@ -60,7 +60,7 @@ module.exports = {
                     const token = jwt.sign(userPayload, process.env.JWT_SECRET, {
                         expiresIn: '30d'
                     })
-                    res.status(200).send({ message: "Login Success", _id: user._id, name: user.name, onboarding_1: user.onboarding_1, onboarding_2: user.onboarding_2, token: token, candidate: true })
+                    res.status(200).send({ message: "Login Success", _id: user._id, name: user.name, onboarding_1: user.on_boarding_1, onboarding_2: user.on_boarding_2, token: token, candidate: true })
                 }
             }
             else if (recruiter) {
@@ -124,7 +124,7 @@ module.exports = {
                 $set: {
                     name,
                     status,
-                    skill_set,
+                    skill_set:skill_set.map(i=>i),
                     profile_pic,
                     phone,
                     experience,
