@@ -98,13 +98,13 @@ module.exports = {
                             user_verified: true
                         }
                     })
-                    res.json({ authorization: true, _id: req.user._id, email: req.user.email, onboarding_1: req.user.onboarding_1, onboarding_2: req.user.onboarding_2, candidate: true, token:token });
+                    res.json({ authorization: true, _id: req.user._id, email: req.user.email, onboarding_1: req.user.onboarding_1, onboarding_2: req.user.onboarding_2, candidate: true, token: token });
                 } else {
                     res.json({ authorization: false });
                 }
             } else {
                 if (req.user) {
-                    res.json({ authorization: true, _id: req.user._id, email: req.user.email, onboarding: req.user.onboarding, candidate: false, token:token });
+                    res.json({ authorization: true, _id: req.user._id, email: req.user.email, onboarding: req.user.onboarding, candidate: false, token: token });
                 } else {
                     res.json({ authorization: false });
                 }
@@ -118,10 +118,11 @@ module.exports = {
     updateCandidate: async (req, res) => {
         try {
             const userId = req.user._id
-            const { name, status, skill_set, profile_pic, phone, experience, education, certifications, portfolio_link, about_us } = req.body;
+            const { Firstname, Lastname, status, skill_set, profile_pic, phone, experience, education, certifications, portfolio_link, about_us } = req.body;
             await userModel.findByIdAndUpdate(userId, {
                 $set: {
-                    name,
+                    Firstname,
+                    Lastname,
                     status,
                     skill_set: skill_set.map(i => i),
                     profile_pic,
@@ -158,12 +159,12 @@ module.exports = {
             })
             const updatedUser = await userModel.findById(userId).lean();
             // Remove _id from skill_set array
-            if (updatedUser.skill_set && Array.isArray(updatedUser.skill_set)) {
-              updatedUser.skill_set = updatedUser.skill_set.map(skill => ({
-                skill: skill.skill,
-                percentage: skill.percentage
-              }));
-            }            
+            if (updatedUser.skill_set) {
+                updatedUser.skill_set = updatedUser.skill_set.map(skill => ({
+                    skill: skill.skill,
+                    percentage: skill.percentage
+                }));
+            }
             updatedUser.password = undefined
             res.status(200).send({ message: "Profile Updated", updatedUser: updatedUser })
         } catch (error) {
@@ -223,9 +224,32 @@ module.exports = {
                     onboarding_2: true
                 }
             });
-            const updatedUser = await userModel.findById(userId)
-            updatedUser.password = undefined
-            res.status(200).send({ message: "Details Added", updatedUser: updatedUser })
+            function removeIdFromSubdocuments(obj) {
+                if (Array.isArray(obj)) {
+                    return obj.map(item => {
+                        if (item && typeof item === 'object' && item._id) {
+                            const { _id, ...rest } = item;
+                            return rest;
+                        }
+                        return item;
+                    });
+                } else if (typeof obj === 'object' && obj !== null) {
+                    for (const key in obj) {
+                        obj[key] = removeIdFromSubdocuments(obj[key]);
+                    }
+                }
+                return obj;
+            }
+
+            const updatedUser = await userModel.findById(userId).lean();
+            const cleanedUser = removeIdFromSubdocuments(updatedUser);
+
+            // Remove password field
+            cleanedUser.password = undefined;
+
+            res.status(200).send({ message: "Profile Updated", updatedUser: cleanedUser });
+
+
         } catch (error) {
             console.log(error);
             res.status(500).send({ error: 'Somthing error' })
@@ -234,8 +258,21 @@ module.exports = {
 
     jobs: async (req, res) => {
         try {
-            const jobs = await jobModel.find()
-            res.status(200).send({ jobs: jobs })
+            function transformJobDocument(doc) {
+                doc = doc.toObject();
+                if (doc.required_skill_set && Array.isArray(doc.required_skill_set)) {
+                    doc.required_skill_set = doc.required_skill_set.map(skill => {
+                        if (skill._id) {
+                            delete skill._id;
+                        }
+                        return skill;
+                    });
+                }
+                return doc;
+            }
+            const jobs = await jobModel.find();
+            const cleanedJobs = jobs.map(transformJobDocument);
+            res.status(200).send(cleanedJobs);
         } catch (error) {
             console.log(error);
             res.status(500).send({ error: 'Somthing error' })
@@ -246,7 +283,7 @@ module.exports = {
         try {
             const jobById = req.params.id
             const job = await jobModel.findById(jobById)
-            res.status(200).send({ job: job })
+            res.status(200).send(job)
         } catch (error) {
             console.log(error);
             res.status(500).send({ error: 'Somthing error' })
@@ -292,8 +329,25 @@ module.exports = {
     viewProfile: async (req, res) => {
         try {
             const id = req.user._id
-            const profile = await userModel.findById(id).select('-password');
-            res.status(200).send(profile);
+            function removeIdFromSubdocuments(obj) {
+                if (Array.isArray(obj)) {
+                    return obj.map(item => {
+                        if (item && typeof item === 'object' && item._id) {
+                            const { _id, ...rest } = item;
+                            return rest;
+                        }
+                        return item;
+                    });
+                } else if (typeof obj === 'object' && obj !== null) {
+                    for (const key in obj) {
+                        obj[key] = removeIdFromSubdocuments(obj[key]);
+                    }
+                }
+                return obj;
+            }
+            const profile = await userModel.findById(id).select('-password').lean();
+            const cleanedProfile = removeIdFromSubdocuments(profile);
+            res.status(200).send(cleanedProfile);
         } catch (err) {
             console.log(err)
             res.status(400).send(err);
@@ -328,7 +382,7 @@ module.exports = {
                 .exec();
             const chatList = chats.map(chat => ({
                 id: chat._id,
-                users: chat.users,
+                candidate: chat.users,
                 post: chat.post,
                 lastMessage: chat.messages[0]?.message,
                 lastMessageTime: chat.messages[0]?.time
@@ -363,7 +417,7 @@ module.exports = {
                 });
                 return {
                     id: chat._id,
-                    users: chat.users,
+                    candidate: chat.users,
                     post: chat.post,
                     lastMessage: chat.messages[0]?.message,
                     lastMessageTime: chat.messages[0]?.time,
@@ -392,7 +446,7 @@ module.exports = {
             }
 
             // Create a new chat if one doesn't already exist
-            const chat = new chatModel({ users: users[0], recruiter: users[1], job });
+            const chat = new chatModel({ candidate: users[0], recruiter: users[1], job });
             await chat.save();
             res.status(201).send(chat);
         } catch (err) {

@@ -9,6 +9,7 @@ require('./middleware/passport')
 // Routes
 const userRouter = require('./routes/user');
 const recruiterRouter = require('./routes/recruiter');
+const adminRouter = require('./routes/admin')
 
 
 const app = express();
@@ -23,6 +24,7 @@ db.connect();
 
 app.use('/', userRouter);
 app.use('/recruiter', recruiterRouter);
+app.use('/admin',adminRouter)
 
 app.use((err, req, res, next) => {
     console.error(err.stack);

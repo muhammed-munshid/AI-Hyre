@@ -13,7 +13,7 @@ router.get('/google/callback', passport.authenticate('google', { failureRedirect
 }
 );
 
-router.get('/jobs', passport.authenticate('jwt', { session: false }), userController.jobs)
+router.get('/jobs', userController.jobs)
 router.get('/job-by-id/:id', passport.authenticate('jwt', { session: false }), userController.jobById)
 router.get('/jobs-by-skillset', passport.authenticate('jwt', { session: false }), userController.jobsByskillSet)
 router.get('/profile', passport.authenticate('jwt', { session: false }), userController.viewProfile)
