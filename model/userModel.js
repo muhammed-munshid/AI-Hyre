@@ -1,7 +1,10 @@
 const mongoose = require("mongoose");
 
 const userSchema = new mongoose.Schema({
-    name: {
+    Firstname: {
+        type: String
+    },
+    Lastname: {
         type: String
     },
     email: {
@@ -10,7 +13,7 @@ const userSchema = new mongoose.Schema({
     phone: {
         type: Number
     },
-    password: {
+    password: { 
         type: String
     },
     skill_set: [{
@@ -45,11 +48,11 @@ const userSchema = new mongoose.Schema({
         type: Boolean,
         default: false
     },
-    on_boarding_1: {
+    onboarding_1: {
         type: Boolean,
         default: false
     },
-    on_boarding_2: {
+    onboarding_2: {
         type: Boolean,
         default: false
     },

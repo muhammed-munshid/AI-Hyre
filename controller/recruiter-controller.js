@@ -35,7 +35,7 @@ module.exports = {
                 const token = jwt.sign(recruiterPayload, process.env.JWT_SECRET, {
                     expiresIn: '30d'
                 })
-                res.status(200).send({ message: 'Signup Success', _id: newRecruiter._id, name: newRecruiter.name, token: token })
+                res.status(200).send({ message: 'Signup Success', _id: newRecruiter._id, candidate: false, token: token })
             } else {
                 res.status(403).send({ message: 'You are already registered' })
             }
@@ -58,7 +58,7 @@ module.exports = {
                     const token = jwt.sign({ id: recruiter._id }, process.env.JWT_SECRET, {
                         expiresIn: '30d'
                     })
-                    res.status(200).send({ message: "Login Successful", recruiterId: recruiter._id, recruiterName: recruiter.name, on_boarding_1: recruiter, on_boarding_2: recruiter.on_boarding_2, token: token })
+                    res.status(200).send({ message: "Login Successful", recruiterId: recruiter._id, recruiterName: recruiter.name, onboarding_1: recruiter, onboarding_2: recruiter.onboarding_2, token: token })
                 }
             } else {
                 res.status(200).send({ message: "Incorrect Email or Password" })
@@ -72,7 +72,7 @@ module.exports = {
     viewProfile: async (req, res) => {
         try {
             const id = req.user._id
-            const profile = await recruiterModel.findById(id)
+            const profile = await recruiterModel.findById(id).select('-password');
             res.status(200).send(profile);
         } catch (err) {
             console.log(err)
@@ -93,7 +93,7 @@ module.exports = {
                     profile_pic,
                     company_verified,
                     website_link,
-                    on_boarding: true
+                    onboarding: true
                 }
             })
             const updatedRecruiter = await recruiterModel.findById(recruiterId)

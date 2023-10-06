@@ -32,7 +32,7 @@ module.exports = {
                 const token = jwt.sign(userPayload, process.env.JWT_SECRET, {
                     expiresIn: '30d'
                 })
-                res.status(200).send({ message: 'Signup Success', _id: newUser._id, candidate:true, token: token })
+                res.status(200).send({ message: 'Signup Success', _id: newUser._id, candidate: true, token: token })
             } else {
                 res.status(403).send({ message: 'You are already registered' })
             }
@@ -60,7 +60,7 @@ module.exports = {
                     const token = jwt.sign(userPayload, process.env.JWT_SECRET, {
                         expiresIn: '30d'
                     })
-                    res.status(200).send({ message: "Login Success", _id: user._id, name: user.name, onboarding_1: user.on_boarding_1, onboarding_2: user.on_boarding_2, token: token, candidate: true })
+                    res.status(200).send({ message: "Login Success", _id: user._id, name: user.name, onboarding_1: user.onboarding_1, onboarding_2: user.onboarding_2, token: token, candidate: true })
                 }
             }
             else if (recruiter) {
@@ -76,7 +76,7 @@ module.exports = {
                     const token = jwt.sign(recruiterPayload, process.env.JWT_SECRET, {
                         expiresIn: '30d'
                     })
-                    res.status(200).send({ message: "Login Successful", onboarding: recruiter.on_boarding, id: recruiter._id, name: recruiter.name, token: token, candidate: false })
+                    res.status(200).send({ message: "Login Successful", onboarding: recruiter.onboarding, id: recruiter._id, token: token, candidate: false })
                 }
             } else {
                 res.status(401).send({ message: "Incorrect Email or Password" })
@@ -89,6 +89,7 @@ module.exports = {
 
     signInWithJwt: async (req, res) => {
         const jwtPayload = req.jwtPayload
+        const token = req.token
         try {
             if (jwtPayload.role === 'user') {
                 if (req.user) {
@@ -97,15 +98,13 @@ module.exports = {
                             user_verified: true
                         }
                     })
-                    const user = await userModel.findById(req.user._id)
-                    res.json({ authorization: true, _id: req.user._id, name: req.user.email, onboarding_1: req.user.on_boarding_1, onboarding_2: req.user.on_boarding_2, candidate:true });
+                    res.json({ authorization: true, _id: req.user._id, email: req.user.email, onboarding_1: req.user.onboarding_1, onboarding_2: req.user.onboarding_2, candidate: true, token:token });
                 } else {
                     res.json({ authorization: false });
                 }
             } else {
                 if (req.user) {
-                    const recruiter = await recruiterModel.findById(req.user._id)
-                    res.json({ authorization: true, _id: req.user._id, name: req.user.email, on_boarding: req.user.on_boarding, candidate:false });
+                    res.json({ authorization: true, _id: req.user._id, email: req.user.email, onboarding: req.user.onboarding, candidate: false, token:token });
                 } else {
                     res.json({ authorization: false });
                 }
@@ -124,7 +123,7 @@ module.exports = {
                 $set: {
                     name,
                     status,
-                    skill_set:skill_set.map(i=>i),
+                    skill_set: skill_set.map(i => i),
                     profile_pic,
                     phone,
                     experience,
@@ -146,17 +145,25 @@ module.exports = {
     addProfile: async (req, res) => {
         try {
             const userId = req.user._id
-            const { name, status, skill_set, profile_pic } = req.body;
+            const { Firstname, Lastname, status, skill_set, profile_pic } = req.body;
             await userModel.findByIdAndUpdate(userId, {
                 $set: {
-                    name,
+                    Firstname,
+                    Lastname,
                     status,
                     skill_set,
                     profile_pic,
-                    on_boarding_1: true
+                    onboarding_1: true
                 }
             })
-            const updatedUser = await userModel.findById(userId)
+            const updatedUser = await userModel.findById(userId).lean();
+            // Remove _id from skill_set array
+            if (updatedUser.skill_set && Array.isArray(updatedUser.skill_set)) {
+              updatedUser.skill_set = updatedUser.skill_set.map(skill => ({
+                skill: skill.skill,
+                percentage: skill.percentage
+              }));
+            }            
             updatedUser.password = undefined
             res.status(200).send({ message: "Profile Updated", updatedUser: updatedUser })
         } catch (error) {
@@ -213,7 +220,7 @@ module.exports = {
                     certifications,
                     portfolio_link,
                     about_us,
-                    on_boarding_2: true
+                    onboarding_2: true
                 }
             });
             const updatedUser = await userModel.findById(userId)
@@ -285,7 +292,7 @@ module.exports = {
     viewProfile: async (req, res) => {
         try {
             const id = req.user._id
-            const profile = await userModel.findById(id)
+            const profile = await userModel.findById(id).select('-password');
             res.status(200).send(profile);
         } catch (err) {
             console.log(err)
@@ -296,6 +303,7 @@ module.exports = {
     messages: async (req, res) => {
         try {
             const chat = await chatModel.findById(req.params.id).populate('users messages.sender messages.receiver', 'name email');
+            console.log('chat', chat)
             res.send(chat);
         } catch (err) {
             console.log(err)
@@ -396,7 +404,7 @@ module.exports = {
     //Adding a message into a chat:
     message: async (req, res) => {
         try {
-            const chat = await chatModel.findById(req.params.id);
+            const chat = await chatModel.findById(req.params.id).populate('recruiter users')
             const { message, sender, receiver } = req.body;
             const messageId = crypto.randomBytes(5).toString('hex');
             chat.messages.push({ id: messageId, message, sender, receiver, status: 'sent', time: Date.now() });

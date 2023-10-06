@@ -4,17 +4,17 @@ const mongoose = require("mongoose");
 const chatSchema = new mongoose.Schema({
     recruiter: {
         type: Schema.Types.ObjectId,
-        ref: 'recruiterModel',
+        ref: 'recruiters',
         required: true
     },
     users: {
         type: Schema.Types.ObjectId,
-        ref: 'userModel',
+        ref: 'users',
         required: true
     },
     job: {
         type: Schema.Types.ObjectId,
-        ref: 'jobModel',
+        ref: 'jobs',
         required: true
     },
     messages: [{
@@ -25,12 +25,12 @@ const chatSchema = new mongoose.Schema({
         id: { type: String, required: true },
         sender: {
             type: Schema.Types.ObjectId,
-            ref: 'userModel',
+            ref: 'users',
             required: true
         },
         receiver: {
             type: Schema.Types.ObjectId,
-            ref: 'userModel',
+            ref: 'users',
             required: true
         },
         time: {
