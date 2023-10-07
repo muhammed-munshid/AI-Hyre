@@ -1,5 +1,5 @@
 const passport = require('passport');
-const userModel = require('../model/userModel');
+const candidateModel = require('../model/candidateModel');
 const recruiterModel = require('../model/recruiterModel');
 const JwtStrategy = require('passport-jwt').Strategy;
 const ExtractJwt = require('passport-jwt').ExtractJwt;
@@ -21,7 +21,7 @@ passport.use('jwt', new JwtStrategy(
 	  console.log('payload: ', jwtPayload);
 	  try {
 		if (jwtPayload.role === 'user') {
-		  const user = await userModel.findById(jwtPayload.id).exec();
+		  const user = await candidateModel.findById(jwtPayload.id).exec();
 		  console.log(user);
 		  if (user) {
 			// Attach jwtPayload to the req object

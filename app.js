@@ -7,9 +7,10 @@ dotenv.config();
 require('./middleware/passport')
 
 // Routes
-const userRouter = require('./routes/user');
+const candidateRouter = require('./routes/candidate');
 const recruiterRouter = require('./routes/recruiter');
 const adminRouter = require('./routes/admin')
+const chatRouter = require('./routes/chat')
 
 
 const app = express();
@@ -22,8 +23,9 @@ app.use(bodyParser.urlencoded({ extended: true }));
 app.use(bodyParser.json());
 db.connect();
 
-app.use('/', userRouter);
+app.use('/', candidateRouter);
 app.use('/recruiter', recruiterRouter);
+app.use('/chat', chatRouter);
 app.use('/admin',adminRouter)
 
 app.use((err, req, res, next) => {

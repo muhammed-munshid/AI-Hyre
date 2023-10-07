@@ -1,11 +1,10 @@
-const userModel = require("../model/userModel");
+const candidateModel = require("../model/candidateModel");
 const bcrypt = require('bcrypt')
 const crypto = require('crypto')
 const jwt = require('jsonwebtoken');
 const jobModel = require("../model/jobModel");
 const moment = require('moment');
 const recruiterModel = require("../model/recruiterModel");
-const { candidates } = require("./recruiter-controller");
 const chatModel = require("../model/chatModel");
 
 module.exports = {
@@ -16,14 +15,14 @@ module.exports = {
             const salt = await bcrypt.genSalt(10)
             const hashedPassword = await bcrypt.hash(password, salt)
             password = hashedPassword
-            const userExist = await userModel.findOne({ email: email })
+            const userExist = await candidateModel.findOne({ email: email })
             if (!userExist) {
-                const user = new userModel({
+                const user = new candidateModel({
                     email,
                     password
                 });
                 await user.save();
-                const newUser = await userModel.findOne({ email: email })
+                const newUser = await candidateModel.findOne({ email: email })
                 newUser.password = undefined
                 const userPayload = {
                     id: user._id,
@@ -45,7 +44,7 @@ module.exports = {
     signIn: async (req, res) => {
         try {
             const { email, password } = req.body;
-            const user = await userModel.findOne({ email: email })
+            const user = await candidateModel.findOne({ email: email })
             const recruiter = await recruiterModel.findOne({ email: email })
             if (user) {
                 const userPayload = {
@@ -93,7 +92,7 @@ module.exports = {
         try {
             if (jwtPayload.role === 'user') {
                 if (req.user) {
-                    await userModel.findByIdAndUpdate(req.user._id, {
+                    await candidateModel.findByIdAndUpdate(req.user._id, {
                         $set: {
                             user_verified: true
                         }
@@ -119,7 +118,7 @@ module.exports = {
         try {
             const userId = req.user._id
             const { Firstname, Lastname, status, skill_set, profile_pic, phone, experience, education, certifications, portfolio_link, about_us } = req.body;
-            await userModel.findByIdAndUpdate(userId, {
+            await candidateModel.findByIdAndUpdate(userId, {
                 $set: {
                     Firstname,
                     Lastname,
@@ -134,7 +133,7 @@ module.exports = {
                     about_us
                 }
             })
-            const updatedUser = await userModel.findById(userId)
+            const updatedUser = await candidateModel.findById(userId)
             updatedUser.password = undefined
             res.status(200).send({ message: "Candidate updated", _id: updatedUser._id })
         } catch (error) {
@@ -148,7 +147,7 @@ module.exports = {
             console.log('Hello');
             const userId = req.user._id
             const { Firstname, Lastname, status, skill_set, profile_pic } = req.body;
-            await userModel.findByIdAndUpdate(userId, {
+            await candidateModel.findByIdAndUpdate(userId, {
                 $set: {
                     Firstname,
                     Lastname,
@@ -158,7 +157,7 @@ module.exports = {
                     onboarding_1: true
                 }
             })
-            const updatedUser = await userModel.findById(userId).lean();
+            const updatedUser = await candidateModel.findById(userId).lean();
             // Remove _id from skill_set array
             if (updatedUser.skill_set) {
                 updatedUser.skill_set = updatedUser.skill_set.map(skill => ({
@@ -205,7 +204,7 @@ module.exports = {
             const experienceDetails = calculateExperienceForEachElement(experience);
             const totalEducationDuration = calculateEducationTotalDuration(education);
 
-            await userModel.findByIdAndUpdate(userId, {
+            await candidateModel.findByIdAndUpdate(userId, {
                 $set: {
                     phone,
                     experience: experience.map((exp, index) => ({
@@ -242,7 +241,7 @@ module.exports = {
                 return obj;
             }
 
-            const updatedUser = await userModel.findById(userId).lean();
+            const updatedUser = await candidateModel.findById(userId).lean();
             const cleanedUser = removeIdFromSubdocuments(updatedUser);
 
             // Remove password field
@@ -294,7 +293,7 @@ module.exports = {
     jobsByskillSet: async (req, res) => {
         try {
             const userId = req.user._id;
-            const candidate = await userModel.findById(userId);
+            const candidate = await candidateModel.findById(userId);
             const skillset = candidate.skill_set
             const jobs = await jobModel.find()
 
@@ -346,189 +345,11 @@ module.exports = {
                 }
                 return obj;
             }
-            const profile = await userModel.findById(id).select('-password').lean();
+            const profile = await candidateModel.findById(id).select('-password').lean();
             const cleanedProfile = removeIdFromSubdocuments(profile);
             res.status(200).send(cleanedProfile);
         } catch (err) {
             console.log(err)
-            res.status(400).send(err);
-        }
-    },
-
-    messages: async (req, res) => {
-        try {
-            const chat = await chatModel.findById(req.params.id)
-            .populate({
-              path: 'messages.sender',
-              select: 'name email',
-              match: { senderType: 'user' }, // Match senderType 'user'
-            })
-            .populate({
-              path: 'messages.sender',
-              select: 'name email',
-              match: { senderType: 'recruiter' }, // Match senderType 'recruiter'
-            })
-            .populate({
-              path: 'messages.receiver',
-              select: 'name email',
-              match: { receiverType: 'user' }, // Match receiverType 'user'
-            })
-            .populate({
-              path: 'messages.receiver',
-              select: 'name email',
-              match: { receiverType: 'recruiter' }, // Match receiverType 'recruiter'
-            })
-            .exec();
-          
-          console.log('chat', chat);
-          res.send(chat);
-          
-        } catch (err) {
-            console.log(err)
-            res.status(400).send(err);
-        }
-    },
-
-    //list of all the chats that the user is a part of
-    v1Chat: async (req, res) => {
-        try {
-            const { id } = req.params;
-            const chats = await chatModel.find({ candidate: id })
-                .populate('users', 'username')
-                .populate({
-                    path: 'messages',
-                    options: { sort: { time: -1 }, limit: 1 },
-                    populate: {
-                        path: 'sender receiver',
-                        select: 'username'
-                    }
-                })
-                .exec();
-            const chatList = chats.map(chat => ({
-                id: chat._id,
-                candidate: chat.candidate,
-                post: chat.post,
-                lastMessage: chat.messages[0]?.message,
-                lastMessageTime: chat.messages[0]?.time
-            }));
-            res.send(chatList);
-        } catch (err) {
-            console.log(err);
-            res.status(400).send(err);
-        }
-    },
-
-    //same as above
-    viewChat: async (req, res) => {
-        try {
-            const { id } = req.params;
-            const chats = await chatModel.find({ candidate: id })
-                .populate({ path: 'users', select: 'name', transform: 'name' })
-                .populate({
-                    path: 'messages',
-                    options: { sort: { time: -1 }, limit: 1 },
-                    populate: {
-                        path: 'sender receiver',
-                        select: 'name'
-                    }
-                })
-                .exec();
-            const chatList = await Promise.all(chats.map(async chat => {
-                const unreadCount = await chatModel.countDocuments({
-                    _id: chat._id,
-                    'messages.status': 'sent',
-                    'messages.sender': { $ne: id }
-                });
-                return {
-                    id: chat._id,
-                    candidate: chat.candidate,
-                    post: chat.post,
-                    lastMessage: chat.messages[0]?.message,
-                    lastMessageTime: chat.messages[0]?.time,
-                    unreadCount
-                };
-            }));
-            res.send(chatList);
-        } catch (err) {
-            console.log(err);
-            res.status(400).send(err);
-        }
-    },
-
-    createChat: async (req, res) => {
-        try {
-            const { users, job } = req.body;
-
-            // Check if a chat already exists between the two users and post
-            const existingChat = await chatModel.findOne({ users: users[0], recruiter: users[1], job: job }, { maxTimeMS: 20000 });
-            console.log('exist:', existingChat);
-
-            if (existingChat) {
-                // A chat already exists, so return it instead of creating a new one
-                res.status(200).send(existingChat);
-                return;
-            }
-
-            // Create a new chat if one doesn't already exist
-            const chat = new chatModel({ candidate: users[0], recruiter: users[1], job });
-            await chat.save();
-            res.status(201).send(chat);
-        } catch (err) {
-            console.log(err);
-            res.status(400).send(err);
-        }
-    },
-
-    //Adding a message into a chat:
-    message: async (req, res) => {
-        try {
-            const chat = await chatModel.findById(req.params.id);
-
-            if (!chat) {
-                return res.status(404).send({ error: 'Chat not found' }); // Handle chat not found
-            }
-            
-            const { message, sender, receiver } = req.body;
-            const messageId = crypto.randomBytes(5).toString('hex');
-            
-            const senderType = 'users'; // Set the sender type ('users' or 'recruiter')
-            const receiverType = 'recruiters'; // Set the receiver type ('recruiter' or 'users')
-            
-            chat.messages.push({
-                id: messageId,
-                message,
-                sender,
-                receiver,
-                senderType,
-                receiverType,
-                status: 'sent',
-                time: Date.now(),
-            });
-            
-            await chat.save();
-            
-            res.status(201).send(chat);
-                      
-        } catch (err) {
-            console.log(err);
-            res.status(400).send(err);
-        }
-    },
-
-    //update the status of an individual message in a chat
-    updateChat: async (req, res) => {
-        try {
-            const { chatId, messageId } = req.params;
-            const { status } = req.body;
-            const chat = await chatModel.findById(chatId);
-            const messageIndex = chat.messages.findIndex(message => message.id === messageId);
-            if (messageIndex === -1) {
-                return res.status(404).send({ error: 'Message not found' });
-            }
-            chat.messages[messageIndex].status = status;
-            await chat.save();
-            res.send(chat);
-        } catch (err) {
             res.status(400).send(err);
         }
     }

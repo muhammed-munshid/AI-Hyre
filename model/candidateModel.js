@@ -95,4 +95,4 @@ const userSchema = new mongoose.Schema({
     }
 })
 
-module.exports = userModel = mongoose.model('users', userSchema)
+module.exports = candidateModel = mongoose.model('candidate', userSchema)

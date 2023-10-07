@@ -4,12 +4,12 @@ const mongoose = require("mongoose");
 const chatSchema = new mongoose.Schema({
     recruiter: {
         type: Schema.Types.ObjectId,
-        ref: 'recruiters',
+        ref: 'recruiter',
         required: true
     },
     candidate: {
         type: Schema.Types.ObjectId,
-        ref: 'users',
+        ref: 'candidate',
         required: true
     },
     job: {
@@ -25,20 +25,12 @@ const chatSchema = new mongoose.Schema({
         id: { type: String, required: true },
         sender: {
             type: Schema.Types.ObjectId,
-            refPath: 'messages.senderType', // Reference dynamically based on senderType
+            enum: ['candidate', 'recruiter'], // Reference dynamically based on senderType
             required: true
         },
         receiver: {
             type: Schema.Types.ObjectId,
-            refPath: 'messages.receiverType', // Reference dynamically based on receiverType
-            required: true
-        },
-        senderType: {
-            type: String, // Store the sender's type ('recruiter' or 'users')
-            required: true
-        },
-        receiverType: {
-            type: String, // Store the receiver's type ('recruiter' or 'users')
+            enum: ['candidate', 'recruiter'], // Reference dynamically based on receiverType
             required: true
         },
         time: {
@@ -54,5 +46,7 @@ const chatSchema = new mongoose.Schema({
         }
     }]
 });
+
+chatSchema.index({ _id: 1 });
 
 module.exports = chatModel = mongoose.model('chats', chatSchema);

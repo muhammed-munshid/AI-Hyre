@@ -1,7 +1,7 @@
 const recruiterModel = require('../model/recruiterModel');
 const bcrypt = require('bcrypt')
 const jwt = require('jsonwebtoken');
-const userModel = require('../model/userModel');
+const candidateModel = require('../model/candidateModel');
 const jobModel = require('../model/jobModel');
 
 module.exports = {
@@ -108,7 +108,7 @@ module.exports = {
 
     candidates: async (req, res) => {
         try {
-            const candidates = await userModel.find({}, { password: 0 })
+            const candidates = await candidateModel.find({}, { password: 0 })
             res.status(200).send({ candidates: candidates })
         } catch (error) {
             console.log(error);
@@ -119,7 +119,7 @@ module.exports = {
     candidateById: async (req, res) => {
         try {
             const candidateById = req.params.id
-            const candidate = await userModel.findById(candidateById, { password: 0 })
+            const candidate = await candidateModel.findById(candidateById, { password: 0 })
             res.status(200).send({ candidate: candidate })
         } catch (error) {
             console.log(error);
