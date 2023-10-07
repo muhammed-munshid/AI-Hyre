@@ -17,7 +17,7 @@ module.exports = {
         }
         return doc;
       }
-      const jobs = await jobModel.find();
+      const jobs = await jobModel.find()
       const cleanedJobs = jobs.map(transformJobDocument);
       res.status(200).send(cleanedJobs);
     } catch (error) {
@@ -28,7 +28,7 @@ module.exports = {
 
   candidates: async (req, res) => {
     try {
-      const candidates = await candidateModel.find();
+      const candidates = await candidateModel.find().select('-password')
       res.status(200).send(candidates);
     } catch (error) {
       console.log(error);
@@ -38,7 +38,7 @@ module.exports = {
 
   recruiters: async (req, res) => {
     try {
-      const recruiters = await recruiterModel.find();
+      const recruiters = await recruiterModel.find().select('-password')
       res.status(200).send(recruiters);
     } catch (error) {
       console.log(error);
