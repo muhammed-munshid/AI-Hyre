@@ -15,4 +15,6 @@ router.post('/add-job', passport.authenticate('jwt', { session: false }), recrui
 router.put('/add-profile', passport.authenticate('jwt', { session: false }), recruiterController.addProfile)
 router.put('/edit-job/:id', recruiterController.editJob)
 
+router.delete('/delete-job/:id',recruiterController.deleteJob)
+
 module.exports = router

@@ -175,6 +175,17 @@ module.exports = {
         }
     },
 
+    deleteJob: async (req, res) => {
+        try {
+            const id = req.params.id
+            await jobModel.deleteOne({_id:id})
+            res.status(200).send({ delete: true })
+        } catch (error) {
+            console.log(error);
+            res.status(500).send({ error: 'Somthing error' })
+        }
+    },
+
     jobs: async (req, res) => {
         try {
             const jobs = await jobModel.find()
