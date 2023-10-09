@@ -37,7 +37,11 @@ const recruiterSchema = new mongoose.Schema({
     onboarding: {
         type: Boolean,
         default: false
-    }
+    },
+    profile_likes: {
+        type: Number,
+        default: 0
+    },
 })
 
 module.exports = recruiterModel = mongoose.model('recruiter', recruiterSchema)

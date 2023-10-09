@@ -13,7 +13,7 @@ const userSchema = new mongoose.Schema({
     phone: {
         type: Number
     },
-    password: { 
+    password: {
         type: String
     },
     skill_set: [{
@@ -42,7 +42,7 @@ const userSchema = new mongoose.Schema({
         }
     }],
     about_us: {
-        type:String
+        type: String
     },
     user_verified: {
         type: Boolean,
@@ -85,7 +85,8 @@ const userSchema = new mongoose.Schema({
         }
     }],
     profile_likes: {
-        type: Number
+        type: Number,
+        default: 0
     },
     portfolio_link: {
         type: String

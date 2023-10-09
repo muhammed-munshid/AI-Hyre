@@ -21,10 +21,10 @@ module.exports = {
             // Create a new chat if one doesn't already exist
             const chat = new chatModel({ candidate, recruiter, job });
             await chat.save();
-            res.status(201).send(chat);
+            res.status(200).send(chat);
         } catch (err) {
             console.log(err);
-            res.status(400).send(err);
+            res.status(500).send(err);
         }
     },
 
@@ -62,10 +62,10 @@ module.exports = {
                 lastMessage: chat.messages[0]?.message,
                 lastMessageTime: chat.messages[0]?.time
             }));
-            res.send(chatList);
+            res.status(200).send(chatList);
         } catch (err) {
             console.log(err);
-            res.status(400).send(err);
+            res.status(500).send(err);
         }
     },
 
@@ -134,11 +134,11 @@ module.exports = {
                 }));
                 res.send(chatList);
             } else {
-                console.log('what is this?');
+                res.status(500).send('something error');
             }
         } catch (err) {
             console.log(err);
-            res.status(400).send(err);
+            res.status(500).send(err);
         }
     },
 
@@ -165,11 +165,11 @@ module.exports = {
 
             await chat.save();
 
-            res.status(201).send(chat);
+            res.status(200).send(chat);
 
         } catch (err) {
             console.log(err);
-            res.status(400).send(err);
+            res.status(500).send(err);
         }
     },
 
@@ -185,9 +185,9 @@ module.exports = {
             }
             chat.messages[messageIndex].status = status;
             await chat.save();
-            res.send(chat);
+            res.status(200).send(chat);
         } catch (err) {
-            res.status(400).send(err);
+            res.status(500).send(err);
         }
     }
 

@@ -21,8 +21,7 @@ passport.use('jwt', new JwtStrategy(
 	  try {
 		if (jwtPayload.role === 'user') {
 		  const user = await candidateModel.findById(jwtPayload.id).exec();
-		  console.log(user);
-		  if (user) {
+		  console.log(user);		  if (user) {
 			// Attach jwtPayload to the req object
 			req.jwtPayload = jwtPayload;
 			req.token = req.headers.authorization.split(' ')[1]; // Extract and store the token

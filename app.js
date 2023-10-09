@@ -11,6 +11,7 @@ const candidateRouter = require('./routes/candidate');
 const recruiterRouter = require('./routes/recruiter');
 const adminRouter = require('./routes/admin')
 const chatRouter = require('./routes/chat')
+const postRouter = require('./routes/post')
 
 
 const app = express();
@@ -27,6 +28,7 @@ app.use('/', candidateRouter);
 app.use('/recruiter', recruiterRouter);
 app.use('/chat', chatRouter);
 app.use('/admin',adminRouter)
+app.use('/post', postRouter)
 
 app.use((err, req, res, next) => {
     console.error(err.stack);

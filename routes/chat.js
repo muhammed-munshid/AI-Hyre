@@ -1,9 +1,6 @@
 const express = require('express');
 const chatController = require('../controller/chat-controller');
-const passport = require('passport')
 const router = express.Router();
-
-passport.initialize();
 
 router.get('/:id/messages', chatController.viewMessageById)
 router.get('/v1/:id/user', chatController.v1Chat)

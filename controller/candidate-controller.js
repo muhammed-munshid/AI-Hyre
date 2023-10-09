@@ -123,7 +123,7 @@ module.exports = {
                     Firstname,
                     Lastname,
                     status,
-                    skill_set: skill_set.map(i => i),
+                    skill_set,
                     profile_pic,
                     phone,
                     experience,

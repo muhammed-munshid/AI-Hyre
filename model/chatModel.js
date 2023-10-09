@@ -25,12 +25,12 @@ const chatSchema = new mongoose.Schema({
         id: { type: String, required: true },
         sender: {
             type: Schema.Types.ObjectId,
-            enum: ['candidate', 'recruiter'], // Reference dynamically based on senderType
+            enum: ['candidate', 'recruiter'],
             required: true
         },
         receiver: {
             type: Schema.Types.ObjectId,
-            enum: ['candidate', 'recruiter'], // Reference dynamically based on receiverType
+            enum: ['candidate', 'recruiter'],
             required: true
         },
         time: {
