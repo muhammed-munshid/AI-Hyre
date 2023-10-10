@@ -1,3 +1,4 @@
+const { Schema } = require("mongoose");
 const mongoose = require("mongoose");
 
 const userSchema = new mongoose.Schema({
@@ -93,7 +94,11 @@ const userSchema = new mongoose.Schema({
     },
     status: {
         type: String
-    }
+    },
+    followers: [{
+        type: Schema.Types.ObjectId,
+        ref:'candidate',
+    }]
 })
 
 module.exports = candidateModel = mongoose.model('candidate', userSchema)

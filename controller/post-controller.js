@@ -39,6 +39,29 @@ module.exports = {
         }
     },
 
+    updatePost: async (req, res) => {
+        try {
+            const id = req.params.id
+            const { text, image, video, comments } = req.body;
+            const updatedPost = await postModel.findByIdAndUpdate(id,{ text, image, video, comments });
+            res.status(200).send(updatedPost);
+        } catch (err) {
+            console.log(err);
+            res.status(500).send(err);
+        }
+    },
+
+    deletePost: async (req, res) => {
+        try {
+            const id = req.params.id
+            await postModel.deleteOne({_id:id})
+            res.status(200).send({ delete: true })
+        } catch (err) {
+            console.log(err);
+            res.status(500).send(err);
+        }
+    },
+
     addComment: async (req, res) => {
         try {
             const user_id = req.user._id
@@ -54,6 +77,31 @@ module.exports = {
             });
             console.log(updatePost);
             res.status(200).send(updatePost);
+        } catch (err) {
+            console.log(err);
+            res.status(500).send(err);
+        }
+    },
+
+    viewAllPost: async (req, res) => {
+        try {
+            const user_id = req.user._id
+            const posts = await postModel.find()
+            res.status(200).send(posts);
+        } catch (err) {
+            console.log(err);
+            res.status(500).send(err);
+        }
+    },
+
+    viewAllPostByFollowers: async (req, res) => {
+        try {
+            const user_id = req.user._id
+            const followers = await postModel.findOne({ user_id: user_id })
+            const ids = followers.followers
+            const posts = await postModel.find({ user_id: user_id })
+            console.log('posts: ', posts);
+            res.status(200).send(posts);
         } catch (err) {
             console.log(err);
             res.status(500).send(err);

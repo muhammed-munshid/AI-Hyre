@@ -1,3 +1,4 @@
+const { Schema } = require("mongoose");
 const mongoose = require("mongoose");
 
 const recruiterSchema = new mongoose.Schema({
@@ -10,7 +11,7 @@ const recruiterSchema = new mongoose.Schema({
     location: {
         type: String
     },
-    email : {
+    email: {
         type: String
     },
     password: {
@@ -42,6 +43,10 @@ const recruiterSchema = new mongoose.Schema({
         type: Number,
         default: 0
     },
+    followers: [{
+        type: Schema.Types.ObjectId,
+        ref:'recruiter',
+    }]
 })
 
 module.exports = recruiterModel = mongoose.model('recruiter', recruiterSchema)
