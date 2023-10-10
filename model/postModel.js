@@ -19,25 +19,19 @@ const postSchema = new mongoose.Schema({
     video : {
         type: String
     },
-    likes_details: [{
-        user_id: {
-            type: Schema.Types.ObjectId,
-            enum: ['candidate', 'recruiter'],
-        },
-    }],
-    comments: [
-        {
-            message: String,
-            user_id: {
-                type: Schema.Types.ObjectId,
-                enum: ['candidate', 'recruiter'],
-            },
-            time: {
-                type: Date,
-                default: Date.now
-            }
-        }
-    ]
+    // comments: [
+    //     {
+    //         message: String,
+    //         user_id: {
+    //             type: Schema.Types.ObjectId,
+    //             enum: ['candidate', 'recruiter'],
+    //         },
+    //         time: {
+    //             type: Date,
+    //             default: Date.now
+    //         }
+    //     }
+    // ]
 })
 
 module.exports = postModel = mongoose.model('post', postSchema)

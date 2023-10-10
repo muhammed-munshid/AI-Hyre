@@ -4,9 +4,15 @@ module.exports = {
 
     addPost: async (req, res) => {
         try {
-            const user_id = req.user._id
-            const { text, image, video, comments } = req.body;
-            const post = new postModel({ user_id, text, image, video, comments });
+            const user_id = req.user._id;
+            const { text, image, video } = req.body;
+
+            // Check if both image and video are present
+            if (image && video) {
+                return res.status(400).send('Both image and video cannot be provided in a single post.');
+            }
+
+            const post = new postModel({ user_id, text, image, video });
             await post.save();
             res.status(200).send(post);
         } catch (err) {
@@ -14,6 +20,7 @@ module.exports = {
             res.status(500).send(err);
         }
     },
+
 
 
     togglePost: async (req, res) => {
@@ -42,8 +49,12 @@ module.exports = {
     updatePost: async (req, res) => {
         try {
             const id = req.params.id
-            const { text, image, video, comments } = req.body;
-            const updatedPost = await postModel.findByIdAndUpdate(id,{ text, image, video, comments });
+            const { text, image, video } = req.body;
+            if (image && video) {
+                return res.status(400).send('Both image and video cannot be provided in a single post.');
+            }
+            await postModel.findByIdAndUpdate(id, { text, image, video });
+            const updatedPost = await postModel.findById(id)
             res.status(200).send(updatedPost);
         } catch (err) {
             console.log(err);
@@ -54,7 +65,7 @@ module.exports = {
     deletePost: async (req, res) => {
         try {
             const id = req.params.id
-            await postModel.deleteOne({_id:id})
+            await postModel.deleteOne({ _id: id })
             res.status(200).send({ delete: true })
         } catch (err) {
             console.log(err);
@@ -85,7 +96,6 @@ module.exports = {
 
     viewAllPost: async (req, res) => {
         try {
-            const user_id = req.user._id
             const posts = await postModel.find()
             res.status(200).send(posts);
         } catch (err) {
@@ -94,14 +104,27 @@ module.exports = {
         }
     },
 
-    viewAllPostByFollowers: async (req, res) => {
+    viewPostById: async (req, res) => {
         try {
-            const user_id = req.user._id
-            const followers = await postModel.findOne({ user_id: user_id })
-            const ids = followers.followers
-            const posts = await postModel.find({ user_id: user_id })
-            console.log('posts: ', posts);
-            res.status(200).send(posts);
+            const id = req.params.id
+            const post = await postModel.findById(id)
+            res.status(200).send(post);
+        } catch (err) {
+            console.log(err);
+            res.status(500).send(err);
+        }
+    },
+
+    viewAllPostByFollowers: async (req, res) => {
+        console.log('what is this?');
+        try {
+            // const user_id = req.user._id
+            // const followers = await postModel.findOne({ user_id: user_id })
+            // const ids = followers.followers
+            console.log('ids: ');
+            // const posts = await postModel.find({ user_id: user_id })
+            // console.log('posts: ', posts);
+            res.status(200).send('posts');
         } catch (err) {
             console.log(err);
             res.status(500).send(err);
