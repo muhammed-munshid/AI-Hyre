@@ -1,7 +1,8 @@
 const { Schema } = require("mongoose");
+const User = require('./userModal'); 
 const mongoose = require("mongoose");
 
-const userSchema = new mongoose.Schema({
+const candidateSchema = new mongoose.Schema({
     Firstname: {
         type: String
     },
@@ -87,7 +88,7 @@ const userSchema = new mongoose.Schema({
     }],
     profile_likes: [{
         type: Schema.Types.ObjectId,
-        ref:'candidate',
+        ref:'User',
     }],
     portfolio_link: {
         type: String
@@ -97,8 +98,11 @@ const userSchema = new mongoose.Schema({
     },
     followers: [{
         type: Schema.Types.ObjectId,
-        ref:'candidate',
+        ref:'User',
     }]
 })
 
-module.exports = candidateModel = mongoose.model('candidate', userSchema)
+
+const Candidate = User.discriminator('Candidate', candidateSchema);
+
+module.exports = Candidate;
