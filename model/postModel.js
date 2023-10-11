@@ -4,7 +4,7 @@ const mongoose = require("mongoose");
 const postSchema = new mongoose.Schema({
     user_id: {
         type: Schema.Types.ObjectId,
-        ref: ['candidate', 'recruiter'],
+        ref:'User',
     },
     time: {
         type: Date,
@@ -24,7 +24,7 @@ const postSchema = new mongoose.Schema({
             message: String,
             user_id: {
                 type: Schema.Types.ObjectId,
-                enum: ['candidate', 'recruiter'],
+                ref: 'User',
             },
             time: {
                 type: Date,

@@ -1,5 +1,5 @@
 const { Schema } = require("mongoose");
-const User = require('./userModal'); 
+const User = require('./userModal');
 const mongoose = require("mongoose");
 
 const candidateSchema = new mongoose.Schema({
@@ -88,7 +88,7 @@ const candidateSchema = new mongoose.Schema({
     }],
     profile_likes: [{
         type: Schema.Types.ObjectId,
-        ref:'User',
+        ref: 'User',
     }],
     portfolio_link: {
         type: String
@@ -98,7 +98,7 @@ const candidateSchema = new mongoose.Schema({
     },
     followers: [{
         type: Schema.Types.ObjectId,
-        ref:'User',
+        ref: 'User',
     }]
 })
 
