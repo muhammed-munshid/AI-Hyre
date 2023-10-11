@@ -1,4 +1,5 @@
 const postModel = require('../model/postModel');
+const recruiterModel = require('../model/recruiterModel');
 
 module.exports = {
 
@@ -77,6 +78,7 @@ module.exports = {
         try {
             const user_id = req.user._id
             const id = req.params.id
+            console.log(id);
             const { message } = req.body;
             const updatePost = await postModel.findByIdAndUpdate(id, {
                 $push: {
@@ -116,15 +118,23 @@ module.exports = {
     },
 
     viewAllPostByFollowers: async (req, res) => {
-        console.log('what is this?');
         try {
-            // const user_id = req.user._id
-            // const followers = await postModel.findOne({ user_id: user_id })
-            // const ids = followers.followers
-            console.log('ids: ');
-            // const posts = await postModel.find({ user_id: user_id })
-            // console.log('posts: ', posts);
-            res.status(200).send('posts');
+            const id = req.user._id
+            const candidate = await candidateModel.findById(id)
+            const recruiter = await recruiterModel.findById(id)
+            if (candidate) {
+                const candidate = await candidateModel.findById(id).populate('followers')
+                console.log('ids: ', candidate.followers);
+                res.status(200).send(candidate.followers);
+                
+            } else if (recruiter) {
+                const recruiter =  await recruiterModel.findById(id).populate('followers')
+                console.log('ids: ', recruiter.followers);
+                res.status(200).send(candidate.followers);
+
+            } else {
+                console.log('user not found');
+            }
         } catch (err) {
             console.log(err);
             res.status(500).send(err);

@@ -1,5 +1,5 @@
-const mongoose = require("mongoose");
 const { Schema } = require("mongoose");
+const mongoose = require("mongoose");
 
 const postSchema = new mongoose.Schema({
     user_id: {
@@ -19,19 +19,21 @@ const postSchema = new mongoose.Schema({
     video : {
         type: String
     },
-    // comments: [
-    //     {
-    //         message: String,
-    //         user_id: {
-    //             type: Schema.Types.ObjectId,
-    //             enum: ['candidate', 'recruiter'],
-    //         },
-    //         time: {
-    //             type: Date,
-    //             default: Date.now
-    //         }
-    //     }
-    // ]
+    comments: [
+        {
+            message: String,
+            user_id: {
+                type: Schema.Types.ObjectId,
+                enum: ['candidate', 'recruiter'],
+            },
+            time: {
+                type: Date,
+                default: Date.now
+            }
+        }
+    ]
 })
+
+postSchema.index({ _id: 1 });
 
 module.exports = postModel = mongoose.model('post', postSchema)
