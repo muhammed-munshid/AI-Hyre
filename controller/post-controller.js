@@ -1,3 +1,4 @@
+const candidateModel = require('../model/candidateModel');
 const postModel = require('../model/postModel');
 const recruiterModel = require('../model/recruiterModel');
 
@@ -10,7 +11,7 @@ module.exports = {
 
             // Check if both image and video are present
             if (image && video) {
-                return res.status(400).send('Both image and video cannot be provided in a single post.');
+                return res.status(400).send({ message: 'Both image and video cannot be provided in a single post.' });
             }
 
             const post = new postModel({ user_id, text, image, video });
@@ -25,26 +26,6 @@ module.exports = {
 
 
     togglePost: async (req, res) => {
-        // try {
-        //     const id = req.user._id
-        //     const like = req.body.like
-        //     const candidate = await candidateModel.findById(id)
-        //     const recruiter = await recruiterModel.findById(id)
-        //     if (candidate) {
-        //         if (like === true) {
-        //             res.status(200).send({ name: candidate.Firstname + " " + candidate.Lastname, profile_picture: candidate.profile_pic });
-        //         }
-        //     } else if (recruiter) {
-        //         if (like === true) {
-        //             res.status(200).send({ name: recruiter.name, profile_picture: recruiter.profile_pic });
-        //         }
-        //     } else {
-        //         res.status(500).send('something error');
-        //     }
-        // } catch (err) {
-        //     console.log(err);
-        //     res.status(500).send(err);
-        // }
         try {
             const id = req.user._id
             const likeId = req.body.like
@@ -61,7 +42,7 @@ module.exports = {
                 return res.status(500).send('Something error');
             }
 
-            console.log( user.profile_likes);
+            console.log(user.profile_likes);
             // Check if the follower already exists in the 'following' field
             const likeIndex = user.profile_likes.indexOf(likeId);
             if (likeIndex !== -1) {
@@ -76,7 +57,7 @@ module.exports = {
 
             // Save the user with the updated 'following' field
             await user.save();
-            
+
             // if (user === candidate) {
             //     res.status(200).send({ msg, name: user.Firstname + " " + user.Lastname, profile_picture: user.profile_pic });
             // } else if (user === recruiter) {
@@ -97,10 +78,13 @@ module.exports = {
             const id = req.params.id
             const { text, image, video } = req.body;
             if (image && video) {
-                return res.status(400).send('Both image and video cannot be provided in a single post.');
+                return res.status(400).send({ message: 'Both image and video cannot be provided in a single post.' });
             }
             await postModel.findByIdAndUpdate(id, { text, image, video });
             const updatedPost = await postModel.findById(id)
+            if (!updatedPost) {
+                return res.status(400).send({ message: 'User not exist' });
+            }
             res.status(200).send(updatedPost);
         } catch (err) {
             console.log(err);
@@ -111,8 +95,13 @@ module.exports = {
     deletePost: async (req, res) => {
         try {
             const id = req.params.id
-            await postModel.deleteOne({ _id: id })
-            res.status(200).send({ delete: true })
+            const post = await postModel.findById(id)
+            if (post) {
+                await postModel.deleteOne({ _id: id })
+                res.status(200).send({ delete: true })
+            } else {
+                res.status(200).send({ message: 'This post is already deleted' })
+            }
         } catch (err) {
             console.log(err);
             res.status(500).send(err);
@@ -153,11 +142,31 @@ module.exports = {
 
     viewPostById: async (req, res) => {
         try {
-            const id = req.params.id
-            const post = await postModel.findById(id)
-            res.status(200).send(post);
+            const postId = req.params.id;
+            const post = await postModel.findById(postId)
+            // const candidate = await candidateModel.findById(post.user_id) 
+            // const recruiter = await candidateModel.findById(post.user_id) 
+
+            if (!post) {
+                return res.status(404).json({ message: 'Post not found' });
+            }
+
+            // Check the 'user_id' field to determine if it's a candidate or recruiter
+            console.log(post.user_id);
+            const candidate = await candidateModel.findOne({ _id: post.user_id }).select('-password')
+            if (candidate) {
+                // Now you have the candidate data to use in your response
+                return res.status(200).json({ post, user: candidate });
+            }
+            const recruiter = await recruiterModel.findOne({ _id: post.user_id }).select('-password')
+            if (recruiter) {
+                // Now you have the recruiter data to use in your response
+                return res.status(200).json({ post, user: recruiter });
+            }
+            // If you couldn't find a matching user, handle it accordingly
+            return res.status(404).json({ message: 'User not found' });
         } catch (err) {
-            console.log(err);
+            console.error(err);
             res.status(500).send(err);
         }
     },
@@ -171,9 +180,9 @@ module.exports = {
                 const candidate = await candidateModel.findById(id).populate('followers')
                 console.log('ids: ', candidate.followers);
                 res.status(200).send(candidate.followers);
-                
+
             } else if (recruiter) {
-                const recruiter =  await recruiterModel.findById(id).populate('followers')
+                const recruiter = await recruiterModel.findById(id).populate('followers')
                 console.log('ids: ', recruiter.followers);
                 res.status(200).send(candidate.followers);
 
