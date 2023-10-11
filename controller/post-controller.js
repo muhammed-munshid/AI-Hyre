@@ -1,6 +1,7 @@
 const candidateModel = require('../model/candidateModel');
 const postModel = require('../model/postModel');
 const recruiterModel = require('../model/recruiterModel');
+const User = require('../model/userModal');
 
 module.exports = {
 
@@ -22,8 +23,6 @@ module.exports = {
             res.status(500).send(err);
         }
     },
-
-
 
     togglePost: async (req, res) => {
         try {
@@ -131,7 +130,11 @@ module.exports = {
 
     viewAllPost: async (req, res) => {
         try {
-            const posts = await postModel.find()
+            const posts = await postModel.find().populate({
+                path: 'user_id',
+                select: '-password'
+            });
+
             res.status(200).send(posts);
         } catch (err) {
             console.log(err);
@@ -142,31 +145,20 @@ module.exports = {
     viewPostById: async (req, res) => {
         try {
             const postId = req.params.id;
-            const post = await postModel.findById(postId).populate({
-                path: 'recruiter',
-                options: { strictPopulate: false }
-              })
-            // const candidate = await candidateModel.findById(post.user_id) 
-            // const recruiter = await candidateModel.findById(post.user_id) 
+            const post = await postModel.findById(postId).populate('user_id');
 
             if (!post) {
                 return res.status(404).json({ message: 'Post not found' });
             }
 
-            // Check the 'user_id' field to determine if it's a candidate or recruiter
-            console.log(post.user_id);
-            const candidate = await candidateModel.findOne({ _id: post.user_id }).select('-password')
-            if (candidate) {
-                // Now you have the candidate data to use in your response
-                return res.status(200).json({ post, user: candidate });
+            // The 'user_id' will point to the common User model
+            const user = await User.findById(post.user_id).select('-password');
+
+            if (user) {
+                return res.status(200).json({ post });
+            } else {
+                return res.status(404).json({ message: 'User not found' });
             }
-            const recruiter = await recruiterModel.findOne({ _id: post.user_id }).select('-password')
-            if (recruiter) {
-                // Now you have the recruiter data to use in your response
-                return res.status(200).json({ post, user: recruiter });
-            }
-            // If you couldn't find a matching user, handle it accordingly
-            return res.status(404).json({ message: 'User not found' });
         } catch (err) {
             console.error(err);
             res.status(500).send(err);
@@ -176,19 +168,16 @@ module.exports = {
     viewAllPostByFollowers: async (req, res) => {
         try {
             const id = req.user._id
-            const candidate = await candidateModel.findById(id)
-            const recruiter = await recruiterModel.findById(id)
-            if (candidate) {
-                const candidate = await candidateModel.findById(id).populate('followers')
-                console.log('ids: ', candidate.followers);
-                res.status(200).send(candidate.followers);
-            } else if (recruiter) {
-                const recruiter = await recruiterModel.findById(id).populate('followers')
-                console.log('ids: ', recruiter.followers);
-                res.status(200).send(candidate.followers);
-            } else {
-                console.log('user not found');
-            }
+            const user = await User.findById(id)
+            console.log(user);
+            const ids = user.followers
+            const followers = await User.find({ _id: { $in: ids } });
+            const followersIds = followers.map((follower) => follower._id);
+            const posts = await postModel.find({ user_id: { $in: followersIds } }).populate({
+                path: 'user_id',
+                select: '-password'
+            });
+            res.status(200).send(posts);
         } catch (err) {
             console.log(err);
             res.status(500).send(err);

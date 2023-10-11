@@ -3,21 +3,6 @@ const User = require('./userModal');
 const mongoose = require("mongoose");
 
 const candidateSchema = new mongoose.Schema({
-    Firstname: {
-        type: String
-    },
-    Lastname: {
-        type: String
-    },
-    email: {
-        type: String,
-    },
-    phone: {
-        type: Number
-    },
-    password: {
-        type: String
-    },
     skill_set: [{
         skill: {
             type: String

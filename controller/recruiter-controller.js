@@ -8,14 +8,15 @@ module.exports = {
 
     signUp: async (req, res) => {
         try {
-            let { name, email, password, company_name, location, phone, profile_pic, company_verified, website_link } = req.body;
+            let { Firstname, Lastname, email, password, company_name, location, phone, profile_pic, company_verified, website_link } = req.body;
             const salt = await bcrypt.genSalt(10)
             const hashedPassword = await bcrypt.hash(password, salt)
             password = hashedPassword
             const recruiterExist = await recruiterModel.findOne({ email: email })
             if (!recruiterExist) {
                 const recruiter = new recruiterModel({
-                    name,
+                    Firstname,
+                    Lastname,
                     email,
                     password,
                     company_name,
@@ -83,10 +84,11 @@ module.exports = {
     addProfile: async (req, res) => {
         try {
             const recruiterId = req.user._id
-            const { name, company_name, location, phone, profile_pic, company_verified, website_link } = req.body;
+            const { Firstname, Lastname, company_name, location, phone, profile_pic, company_verified, website_link } = req.body;
             await recruiterModel.findByIdAndUpdate(recruiterId, {
                 $set: {
-                    name,
+                    Firstname,
+                    Lastname,
                     company_name,
                     location,
                     phone,
@@ -178,7 +180,7 @@ module.exports = {
     deleteJob: async (req, res) => {
         try {
             const id = req.params.id
-            await jobModel.deleteOne({_id:id})
+            await jobModel.deleteOne({ _id: id })
             res.status(200).send({ delete: true })
         } catch (error) {
             console.log(error);

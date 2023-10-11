@@ -1,4 +1,5 @@
 const postModel = require('../model/postModel');
+const User = require('../model/userModal');
 
 module.exports = {
 
@@ -6,18 +7,16 @@ module.exports = {
         try {
             const followerId = req.body.follower;
             let msg = "";
-            let user;
+            const user = await User.findById(req.params.id);
+            // const recruiter = await recruiterModel.findById(req.params.id);
 
-            const candidate = await candidateModel.findById(req.params.id);
-            const recruiter = await recruiterModel.findById(req.params.id);
-
-            if (candidate) {
-                user = candidate;
-            } else if (recruiter) {
-                user = recruiter;
-            } else {
-                return res.status(500).send('Something error');
-            }
+            // if (candidate) {
+            //     user = candidate;
+            // } else if (recruiter) {
+            //     user = recruiter;
+            // } else {
+            //     return res.status(500).send('Something error');
+            // }
 
             // Check if the follower already exists in the 'following' field
             const followerIndex = user.followers.indexOf(followerId);
@@ -64,36 +63,16 @@ module.exports = {
 
     myFollowers: async (req, res) => {
         try {
-            const userId = req.params.id;
-    
-            // Determine whether the user is a candidate or recruiter
-            const candidate = await candidateModel.findById(userId).select('-password')
-            const recruiter = await recruiterModel.findById(userId).select('-password')
-    
-            if (candidate) {
-                // If the user is a candidate, populate followers with recruiters
-                const populatedFollowers = await candidateModel
-                    .findById(userId).select('-password')
-                    .populate('followers') // Replace 'name' with the fields you want to populate
-                    .exec();
-                res.status(200).send(populatedFollowers);
-            } else if (recruiter) {
-                // If the user is a recruiter, populate followers with candidates
-                const populatedFollowers = await recruiterModel
-                    .findById(userId).select('-password')
-                    .populate('followers') // Replace 'Firstname' with the fields you want to populate
-                    .exec();
-                res.status(200).send(populatedFollowers.followers);
-            } else {
-                return res.status(500).send('User not found');
-            }
+            const id = req.params.id
+            const user = await User.findById(id).populate('followers')
+            res.status(200).send(user.followers);
         } catch (err) {
             console.log(err);
             res.status(500).send(err);
         }
     },
-    
-    
+
+
 
     followingMe: async (req, res) => {
         try {
