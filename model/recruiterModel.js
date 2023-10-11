@@ -1,4 +1,5 @@
 const { Schema } = require("mongoose");
+const User = require('./userModal'); 
 const mongoose = require("mongoose");
 
 const recruiterSchema = new mongoose.Schema({
@@ -41,12 +42,14 @@ const recruiterSchema = new mongoose.Schema({
     },
     profile_likes: [{
         type: Schema.Types.ObjectId,
-        ref:'recruiter',
+        ref:'User',
     }],
     followers: [{
         type: Schema.Types.ObjectId,
-        ref:'recruiter',
+        ref:'User',
     }]
 })
 
-module.exports = recruiterModel = mongoose.model('recruiter', recruiterSchema)
+const Recruiter = User.discriminator('Recruiter', recruiterSchema);
+
+module.exports = Recruiter;

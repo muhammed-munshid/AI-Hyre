@@ -142,7 +142,10 @@ module.exports = {
     viewPostById: async (req, res) => {
         try {
             const postId = req.params.id;
-            const post = await postModel.findById(postId)
+            const post = await postModel.findById(postId).populate({
+                path: 'recruiter',
+                options: { strictPopulate: false }
+              })
             // const candidate = await candidateModel.findById(post.user_id) 
             // const recruiter = await candidateModel.findById(post.user_id) 
 
