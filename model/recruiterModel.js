@@ -39,10 +39,10 @@ const recruiterSchema = new mongoose.Schema({
         type: Boolean,
         default: false
     },
-    profile_likes: {
-        type: Number,
-        default: 0
-    },
+    profile_likes: [{
+        type: Schema.Types.ObjectId,
+        ref:'recruiter',
+    }],
     followers: [{
         type: Schema.Types.ObjectId,
         ref:'recruiter',

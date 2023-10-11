@@ -85,10 +85,10 @@ const userSchema = new mongoose.Schema({
             type: String
         }
     }],
-    profile_likes: {
-        type: Number,
-        default: 0
-    },
+    profile_likes: [{
+        type: Schema.Types.ObjectId,
+        ref:'candidate',
+    }],
     portfolio_link: {
         type: String
     },

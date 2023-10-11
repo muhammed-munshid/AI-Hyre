@@ -25,22 +25,67 @@ module.exports = {
 
 
     togglePost: async (req, res) => {
+        // try {
+        //     const id = req.user._id
+        //     const like = req.body.like
+        //     const candidate = await candidateModel.findById(id)
+        //     const recruiter = await recruiterModel.findById(id)
+        //     if (candidate) {
+        //         if (like === true) {
+        //             res.status(200).send({ name: candidate.Firstname + " " + candidate.Lastname, profile_picture: candidate.profile_pic });
+        //         }
+        //     } else if (recruiter) {
+        //         if (like === true) {
+        //             res.status(200).send({ name: recruiter.name, profile_picture: recruiter.profile_pic });
+        //         }
+        //     } else {
+        //         res.status(500).send('something error');
+        //     }
+        // } catch (err) {
+        //     console.log(err);
+        //     res.status(500).send(err);
+        // }
         try {
             const id = req.user._id
-            const like = req.body.like
-            const candidate = await candidateModel.findById(id)
-            const recruiter = await recruiterModel.findById(id)
+            const likeId = req.body.like
+            let msg = "";
+            let user;
+            const candidate = await candidateModel.findById(id).select('-password')
+            const recruiter = await recruiterModel.findById(id).select('-password')
+
             if (candidate) {
-                if (like === true) {
-                    res.status(200).send({ name: candidate.Firstname + " " + candidate.Lastname, profile_picture: candidate.profile_pic });
-                }
+                user = candidate;
             } else if (recruiter) {
-                if (like === true) {
-                    res.status(200).send({ name: recruiter.name, profile_picture: recruiter.profile_pic });
-                }
+                user = recruiter;
             } else {
-                res.status(500).send('something error');
+                return res.status(500).send('Something error');
             }
+
+            console.log( user.profile_likes);
+            // Check if the follower already exists in the 'following' field
+            const likeIndex = user.profile_likes.indexOf(likeId);
+            if (likeIndex !== -1) {
+                // Follower already exists, remove them from the 'following' field
+                user.profile_likes.splice(likeIndex, 1);
+                msg = "removed";
+            } else {
+                // Follower doesn't exist, add them to the 'following' field
+                user.profile_likes.push(likeId);
+                msg = "added";
+            }
+
+            // Save the user with the updated 'following' field
+            await user.save();
+            
+            // if (user === candidate) {
+            //     res.status(200).send({ msg, name: user.Firstname + " " + user.Lastname, profile_picture: user.profile_pic });
+            // } else if (user === recruiter) {
+            //     res.status(200).send({ msg, name: user.name, profile_picture: user.profile_pic });
+            // } else {
+            //     res.status(500).send('something error');
+            // }
+
+            res.json({ msg, updatedUser: user });
         } catch (err) {
             console.log(err);
             res.status(500).send(err);
