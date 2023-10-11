@@ -73,14 +73,14 @@ module.exports = {
             if (candidate) {
                 // If the user is a candidate, populate followers with recruiters
                 const populatedFollowers = await candidateModel
-                    .findById(userId)
+                    .findById(userId).select('-password')
                     .populate('followers') // Replace 'name' with the fields you want to populate
                     .exec();
-                res.status(200).send(populatedFollowers.followers);
+                res.status(200).send(populatedFollowers);
             } else if (recruiter) {
                 // If the user is a recruiter, populate followers with candidates
                 const populatedFollowers = await recruiterModel
-                    .findById(userId)
+                    .findById(userId).select('-password')
                     .populate('followers') // Replace 'Firstname' with the fields you want to populate
                     .exec();
                 res.status(200).send(populatedFollowers.followers);

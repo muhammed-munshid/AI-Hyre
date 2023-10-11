@@ -112,9 +112,8 @@ module.exports = {
         try {
             const user_id = req.user._id
             const id = req.params.id
-            console.log(id);
             const { message } = req.body;
-            const updatePost = await postModel.findByIdAndUpdate(id, {
+            await postModel.findByIdAndUpdate(id, {
                 $push: {
                     comments: {
                         message,
@@ -122,7 +121,7 @@ module.exports = {
                     }
                 }
             });
-            console.log(updatePost);
+            const updatePost = await postModel.findById(id)
             res.status(200).send(updatePost);
         } catch (err) {
             console.log(err);
@@ -180,12 +179,10 @@ module.exports = {
                 const candidate = await candidateModel.findById(id).populate('followers')
                 console.log('ids: ', candidate.followers);
                 res.status(200).send(candidate.followers);
-
             } else if (recruiter) {
                 const recruiter = await recruiterModel.findById(id).populate('followers')
                 console.log('ids: ', recruiter.followers);
                 res.status(200).send(candidate.followers);
-
             } else {
                 console.log('user not found');
             }
