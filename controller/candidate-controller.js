@@ -270,7 +270,7 @@ module.exports = {
                 }
                 return doc;
             }
-            const jobs = await jobModel.find();
+            const jobs = await jobModel.find().populate('recruiter')
             const cleanedJobs = jobs.map(transformJobDocument);
             res.status(200).send(cleanedJobs);
         } catch (error) {

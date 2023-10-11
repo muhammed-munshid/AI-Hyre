@@ -8,17 +8,6 @@ module.exports = {
             const followerId = req.body.follower;
             let msg = "";
             const user = await User.findById(req.params.id);
-            // const recruiter = await recruiterModel.findById(req.params.id);
-
-            // if (candidate) {
-            //     user = candidate;
-            // } else if (recruiter) {
-            //     user = recruiter;
-            // } else {
-            //     return res.status(500).send('Something error');
-            // }
-
-            // Check if the follower already exists in the 'following' field
             const followerIndex = user.followers.indexOf(followerId);
             if (followerIndex !== -1) {
                 // Follower already exists, remove them from the 'following' field
@@ -64,7 +53,7 @@ module.exports = {
     myFollowers: async (req, res) => {
         try {
             const id = req.params.id
-            const user = await User.findById(id).populate('followers')
+            const user = await User.findById(id).populate('followers').select('-password')
             res.status(200).send(user.followers);
         } catch (err) {
             console.log(err);

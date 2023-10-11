@@ -37,7 +37,8 @@ const jobSchema = new mongoose.Schema({
         type: Boolean
     },
     recruiter: {
-        type: ObjectId
+        type: ObjectId,
+        ref:'User'
     },
     isRemote: {
         type: Boolean
