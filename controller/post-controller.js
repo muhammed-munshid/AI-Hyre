@@ -29,19 +29,7 @@ module.exports = {
             const id = req.user._id
             const likeId = req.body.like
             let msg = "";
-            let user;
-            const candidate = await candidateModel.findById(id).select('-password')
-            const recruiter = await recruiterModel.findById(id).select('-password')
-
-            if (candidate) {
-                user = candidate;
-            } else if (recruiter) {
-                user = recruiter;
-            } else {
-                return res.status(500).send('Something error');
-            }
-
-            console.log(user.profile_likes);
+            const user = await User.findById(id).select('-password')
             // Check if the follower already exists in the 'following' field
             const likeIndex = user.profile_likes.indexOf(likeId);
             if (likeIndex !== -1) {
@@ -56,14 +44,6 @@ module.exports = {
 
             // Save the user with the updated 'following' field
             await user.save();
-
-            // if (user === candidate) {
-            //     res.status(200).send({ msg, name: user.Firstname + " " + user.Lastname, profile_picture: user.profile_pic });
-            // } else if (user === recruiter) {
-            //     res.status(200).send({ msg, name: user.name, profile_picture: user.profile_pic });
-            // } else {
-            //     res.status(500).send('something error');
-            // }
 
             res.json({ msg, updatedUser: user });
         } catch (err) {

@@ -1,3 +1,4 @@
+const notificationModel = require('../model/notificationModel');
 const postModel = require('../model/postModel');
 const User = require('../model/userModal');
 
@@ -8,6 +9,7 @@ module.exports = {
             const followerId = req.body.follower;
             let msg = "";
             const user = await User.findById(req.params.id);
+            const user_id = user._id
             const followerIndex = user.followers.indexOf(followerId);
             if (followerIndex !== -1) {
                 // Follower already exists, remove them from the 'following' field
@@ -17,6 +19,12 @@ module.exports = {
                 // Follower doesn't exist, add them to the 'following' field
                 user.followers.push(followerId);
                 msg = "added";
+                const Follower = await User.findById(followerId).select('-password')
+                const text = `${Follower.Firstname + ' ' + Follower.Lastname} started following you`
+                const type = 'follow'
+                const link = followerId
+                const notification = new notificationModel({ user_id, text, type, link })
+                await notification.save()
             }
 
             // Save the user with the updated 'following' field
