@@ -9,23 +9,15 @@ module.exports = {
 
     signUp: async (req, res) => {
         try {
-            let { Firstname, Lastname, email, password, company_name, location, phone, profile_pic, company_verified, website_link } = req.body;
+            let { email, password } = req.body;
             const salt = await bcrypt.genSalt(10)
             const hashedPassword = await bcrypt.hash(password, salt)
             password = hashedPassword
             const recruiterExist = await recruiterModel.findOne({ email: email })
             if (!recruiterExist) {
                 const recruiter = new recruiterModel({
-                    Firstname,
-                    Lastname,
                     email,
-                    password,
-                    company_name,
-                    location,
-                    phone,
-                    profile_pic,
-                    company_verified,
-                    website_link
+                    password
                 });
                 await recruiter.save();
                 const newRecruiter = await recruiterModel.findOne({ email: email })
@@ -85,17 +77,23 @@ module.exports = {
     addProfile: async (req, res) => {
         try {
             const recruiterId = req.user._id
-            const { Firstname, Lastname, company_name, location, phone, profile_pic, company_verified, website_link } = req.body;
+            const { Firstname, Lastname, job_title, phone, profile_pic, company_name, website_link, industry, type, company_logo, founded, size_of_company, location, company_verified } = req.body;
             await recruiterModel.findByIdAndUpdate(recruiterId, {
                 $set: {
                     Firstname,
                     Lastname,
-                    company_name,
-                    location,
+                    job_title,
                     phone,
                     profile_pic,
-                    company_verified,
+                    company_name,
                     website_link,
+                    industry,
+                    type,
+                    company_logo,
+                    founded,
+                    size_of_company,
+                    location,
+                    company_verified,
                     onboarding: true
                 }
             })
