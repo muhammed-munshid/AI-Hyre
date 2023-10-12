@@ -80,8 +80,7 @@ module.exports = {
             const { Firstname, Lastname, job_title, phone, profile_pic, company_name, website_link, industry, type, company_logo, founded, size_of_company, location, company_verified } = req.body;
             await recruiterModel.findByIdAndUpdate(recruiterId, {
                 $set: {
-                    Firstname,
-                    Lastname,
+                    name,
                     job_title,
                     phone,
                     profile_pic,

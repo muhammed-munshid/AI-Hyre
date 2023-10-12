@@ -118,11 +118,10 @@ module.exports = {
     updateCandidate: async (req, res) => {
         try {
             const userId = req.user._id
-            const { Firstname, Lastname, status, skill_set, profile_pic, phone, experience, education, certifications, portfolio_link, about_us } = req.body;
+            const { name, status, skill_set, profile_pic, phone, experience, education, certifications, portfolio_link, about_us } = req.body;
             await candidateModel.findByIdAndUpdate(userId, {
                 $set: {
-                    Firstname,
-                    Lastname,
+                    name,
                     status,
                     skill_set,
                     profile_pic,
@@ -147,11 +146,10 @@ module.exports = {
         try {
             console.log('Hello');
             const userId = req.user._id
-            const { Firstname, Lastname, status, skill_set, profile_pic } = req.body;
+            const { name, status, skill_set, profile_pic } = req.body;
             await candidateModel.findByIdAndUpdate(userId, {
                 $set: {
-                    Firstname,
-                    Lastname,
+                    name,
                     status,
                     skill_set,
                     profile_pic,
@@ -265,7 +263,7 @@ module.exports = {
             const notifications = await notificationModel.find({ user_id: user_id })
             const posts = await postModel.find().populate({
                 path: 'user_id',
-                select: '-password'
+                select: 'name profile_pic'
             })
             res.status(200).send({ jobs, notifications, posts });
         } catch (error) {
@@ -339,7 +337,6 @@ module.exports = {
             });
 
             console.log(matchingJobs);
-
             res.status(200).json(matchingJobs)
         } catch (error) {
             console.log(error);

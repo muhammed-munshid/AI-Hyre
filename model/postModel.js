@@ -31,7 +31,11 @@ const postSchema = new mongoose.Schema({
                 default: Date.now
             }
         }
-    ]
+    ],
+    likes: {
+        type: Schema.Types.ObjectId,
+        ref: 'User'
+    }
 })
 
 postSchema.index({ _id: 1 });

@@ -36,17 +36,28 @@ module.exports = {
             if (likeIndex !== -1) {
                 // Follower already exists, remove them from the 'following' field
                 user.profile_likes.splice(likeIndex, 1);
+                const postLike = await postModel.findOne({ user_id: id })
+                await postModel.findOneAndUpdate({ user_id: id }, {
+                    $pull: {
+                        likes: likeId
+                    }
+                })
                 msg = "removed";
             } else {
                 // Follower doesn't exist, add them to the 'following' field
                 user.profile_likes.push(likeId);
+                await postModel.findOneAndUpdate({ user_id: id }, {
+                    $push: {
+                        likes: likeId
+                    }
+                })
                 msg = "added";
                 const likedUser = await User.findById(likeId).select('-password')
-                console.log('likedUser: ',likedUser);
+                console.log('likedUser: ', likedUser);
                 const text = `${likedUser.Firstname + ' ' + likedUser.Lastname} started following you`
                 const type = 'like'
                 const link = likeId
-                const notification = new notificationModel({ user_id, text, type, link, img:likedUser.profile_pic })
+                const notification = new notificationModel({ user_id, text, type, link, img: likedUser.profile_pic })
                 await notification.save()
             }
 
@@ -109,11 +120,11 @@ module.exports = {
                 }
             });
             const likedUser = await User.findById(user_id).select('-password')
-            console.log('likedUser: ',likedUser);
+            console.log('likedUser: ', likedUser);
             const text = `${likedUser.Firstname + ' ' + likedUser.Lastname} started following you`
             const type = 'comment'
             const link = likeId
-            const notification = new notificationModel({ user_id, text, type, link, img:likedUser.profile_pic })
+            const notification = new notificationModel({ user_id, text, type, link, img: likedUser.profile_pic })
             await notification.save()
             const updatePost = await postModel.findById(id)
             res.status(200).send(updatePost);
