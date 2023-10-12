@@ -3,6 +3,9 @@ const User = require('./userModal');
 const mongoose = require("mongoose");
 
 const recruiterSchema = new mongoose.Schema({
+    job_title: {
+        type: String,
+    },
     company_name: {
         type: String,
     },
@@ -12,13 +15,16 @@ const recruiterSchema = new mongoose.Schema({
     past_hired_list: {
         type: Array
     },
-    profile_pic: {
+    company_logo: {
         type: String
     },
     jobs: {
         type: Array
     },
     company_verified: {
+        type: Boolean
+    },
+    is_company : {
         type: Boolean
     },
     website_link: {

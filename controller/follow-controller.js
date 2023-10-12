@@ -20,10 +20,11 @@ module.exports = {
                 user.followers.push(followerId);
                 msg = "added";
                 const Follower = await User.findById(followerId).select('-password')
+                console.log('folllowers: ',Follower);
                 const text = `${Follower.Firstname + ' ' + Follower.Lastname} started following you`
                 const type = 'follow'
                 const link = followerId
-                const notification = new notificationModel({ user_id, text, type, link })
+                const notification = new notificationModel({ user_id, text, type, link, img:Follower.profile_pic })
                 await notification.save()
             }
 

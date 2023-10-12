@@ -1,4 +1,5 @@
 const candidateModel = require('../model/candidateModel');
+const notificationModel = require('../model/notificationModel');
 const postModel = require('../model/postModel');
 const recruiterModel = require('../model/recruiterModel');
 const User = require('../model/userModal');
@@ -40,6 +41,13 @@ module.exports = {
                 // Follower doesn't exist, add them to the 'following' field
                 user.profile_likes.push(likeId);
                 msg = "added";
+                const likedUser = await User.findById(likeId).select('-password')
+                console.log('likedUser: ',likedUser);
+                const text = `${likedUser.Firstname + ' ' + likedUser.Lastname} started following you`
+                const type = 'like'
+                const link = likeId
+                const notification = new notificationModel({ user_id, text, type, link, img:likedUser.profile_pic })
+                await notification.save()
             }
 
             // Save the user with the updated 'following' field
@@ -100,6 +108,13 @@ module.exports = {
                     }
                 }
             });
+            const likedUser = await User.findById(user_id).select('-password')
+            console.log('likedUser: ',likedUser);
+            const text = `${likedUser.Firstname + ' ' + likedUser.Lastname} started following you`
+            const type = 'comment'
+            const link = likeId
+            const notification = new notificationModel({ user_id, text, type, link, img:likedUser.profile_pic })
+            await notification.save()
             const updatePost = await postModel.findById(id)
             res.status(200).send(updatePost);
         } catch (err) {

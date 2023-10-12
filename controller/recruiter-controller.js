@@ -3,6 +3,7 @@ const bcrypt = require('bcrypt')
 const jwt = require('jsonwebtoken');
 const candidateModel = require('../model/candidateModel');
 const jobModel = require('../model/jobModel');
+const notificationModel = require('../model/notificationModel');
 
 module.exports = {
 
@@ -101,6 +102,22 @@ module.exports = {
             const updatedRecruiter = await recruiterModel.findById(recruiterId)
             updatedRecruiter.password = undefined
             res.status(200).send({ message: "Profile Updated", updatedRecruiter: updatedRecruiter })
+        } catch (error) {
+            console.log(error);
+            res.status(500).send({ error: 'Somthing error' })
+        }
+    },
+
+    dashboard: async (req, res) => {
+        try {
+            const user_id = req.user._id
+            const candidates = await candidateModel.find({}, { password: 0 })
+            const notifications = await notificationModel.find({ user_id: user_id })
+            const posts = await postModel.find().populate({
+                path: 'user_id',
+                select: '-password'
+            })
+            res.status(200).send({ candidates, notifications, posts })
         } catch (error) {
             console.log(error);
             res.status(500).send({ error: 'Somthing error' })

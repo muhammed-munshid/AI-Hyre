@@ -6,6 +6,7 @@ const jobModel = require("../model/jobModel");
 const moment = require('moment');
 const recruiterModel = require("../model/recruiterModel");
 const chatModel = require("../model/chatModel");
+const notificationModel = require("../model/notificationModel");
 
 module.exports = {
 
@@ -178,14 +179,12 @@ module.exports = {
             const userId = req.user._id
             let { phone, experience, education, certifications, portfolio_link, about_us } = req.body;
 
-
             function calculateExperienceForEachElement(experience) {
                 return experience.map(exp => {
                     const startDate = moment(exp.start_date, 'DD-MM-YYYY');
                     const endDate = moment(exp.end_date, 'DD-MM-YYYY');
                     const years = endDate.diff(startDate, 'years');
                     const months = endDate.diff(startDate, 'months') % 12;
-
                     return `${years} Y ${months} M`;
                 });
             }
@@ -256,6 +255,25 @@ module.exports = {
         }
     },
 
+    dashboard: async (req, res) => {
+        try {
+            const user_id = req.user._id
+            const jobs = await jobModel.find().populate({
+                path: 'recruiter',
+                select: '-password'
+            })
+            const notifications = await notificationModel.find({ user_id: user_id })
+            const posts = await postModel.find().populate({
+                path: 'user_id',
+                select: '-password'
+            })
+            res.status(200).send({ jobs, notifications, posts });
+        } catch (error) {
+            console.log(error);
+            res.status(500).send({ error: 'Somthing error' })
+        }
+    },
+
     jobs: async (req, res) => {
         try {
             function transformJobDocument(doc) {
@@ -270,7 +288,10 @@ module.exports = {
                 }
                 return doc;
             }
-            const jobs = await jobModel.find().populate('recruiter')
+            const jobs = await jobModel.find().populate({
+                path: 'recruiter',
+                select: '-password'
+            })
             const cleanedJobs = jobs.map(transformJobDocument);
             res.status(200).send(cleanedJobs);
         } catch (error) {
@@ -352,6 +373,6 @@ module.exports = {
             console.log(err)
             res.status(400).send(err);
         }
-    }
+    },
 
 }

@@ -16,7 +16,10 @@ const userSchema = new mongoose.Schema({
     },
     password: {
         type: String
-    }
+    },
+    profile_pic: {
+        type: String
+    },
 
     // common fields for all users
 }, { discriminatorKey: 'role' });

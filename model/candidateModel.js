@@ -3,6 +3,20 @@ const User = require('./userModal');
 const mongoose = require("mongoose");
 
 const candidateSchema = new mongoose.Schema({
+    status: {
+        type: String
+    },
+    type: {
+        type: String
+    },
+    location: {
+        country: {
+            type: String
+        },
+        city: {
+            type: String
+        }
+    },
     skill_set: [{
         skill: {
             type: String
@@ -11,9 +25,6 @@ const candidateSchema = new mongoose.Schema({
             type: Number
         }
     }],
-    profile_pic: {
-        type: String
-    },
     experience: [{
         total_exp: {
             type: String
@@ -71,16 +82,13 @@ const candidateSchema = new mongoose.Schema({
             type: String
         }
     }],
+    portfolio_link: {
+        type: String
+    },
     profile_likes: [{
         type: Schema.Types.ObjectId,
         ref: 'User',
     }],
-    portfolio_link: {
-        type: String
-    },
-    status: {
-        type: String
-    },
     followers: [{
         type: Schema.Types.ObjectId,
         ref: 'User',
