@@ -60,7 +60,6 @@ module.exports = {
                 const notification = new notificationModel({ user_id, text, type, link, img: likedUser.profile_pic })
                 await notification.save()
             }
-
             // Save the user with the updated 'following' field
             await user.save();
 
