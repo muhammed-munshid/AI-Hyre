@@ -261,7 +261,7 @@ module.exports = {
                 select: '-password'
             })
             const notifications = await notificationModel.find({ user_id: user_id })
-            const posts = await postModel.find()
+            const post = await postModel.find()
             .populate({
                 path: 'user_id',
                 select: 'name profile_pic'
@@ -269,6 +269,14 @@ module.exports = {
                 path: 'likes',
                 select: 'name profile_pic'
             })
+            const posts = post.map(post => {
+                return {
+                  ...post,
+                  likesCount: post.likes.length
+                };
+              })
+            
+            console.log('posts: ',posts);
             res.status(200).send({ jobs, notifications, posts });
         } catch (error) {
             console.log(error);
