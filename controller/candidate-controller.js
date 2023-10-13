@@ -285,10 +285,10 @@ module.exports = {
                         select: 'name profile_pic'
                     }
                 });
-
-            const posts = post.map(post => {
-                const { _doc, likes, ...cleanedPost } = post.toObject(); // Convert to plain JavaScript object
-                cleanedPost.likesCount = likes.length;
+                const posts = post.map(post => {
+                    const { _doc, likes, ...cleanedPost } = post.toObject(); // Convert to plain JavaScript object
+                    cleanedPost.likesCount = likes.length;
+                    cleanedPost.checkingLike = likes.includes(user_id);
 
                 // Check if a follower is following you
                 cleanedPost.isFollowing = user.followers.includes(post.user_id);

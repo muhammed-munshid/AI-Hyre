@@ -43,7 +43,6 @@ module.exports = {
                 post.likes.push(user_id);
                 msg = "added";
                 const likedUser = await User.findById(user_id).select('-password')
-                console.log('likedUser: ', likedUser);
                 const text = `${likedUser.name} started following you`
                 const type = 'like'
                 const link = user_id
