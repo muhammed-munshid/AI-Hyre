@@ -77,7 +77,7 @@ module.exports = {
     addProfile: async (req, res) => {
         try {
             const recruiterId = req.user._id
-            const { Firstname, Lastname, job_title, phone, profile_pic, company_name, website_link, industry, type, company_logo, founded, size_of_company, location, company_verified } = req.body;
+            const { name, job_title, phone, profile_pic, company_name, website_link, industry, type, company_logo, founded, size_of_company, location, company_verified } = req.body;
             await recruiterModel.findByIdAndUpdate(recruiterId, {
                 $set: {
                     name,
@@ -110,9 +110,13 @@ module.exports = {
             const user_id = req.user._id
             const candidates = await candidateModel.find({}, { password: 0 })
             const notifications = await notificationModel.find({ user_id: user_id })
-            const posts = await postModel.find().populate({
+            const posts = await postModel.find()
+            .populate({
                 path: 'user_id',
-                select: '-password'
+                select: 'name profile_pic'
+            }).populate({
+                path: 'likes',
+                select: 'name profile_pic'
             })
             res.status(200).send({ candidates, notifications, posts })
         } catch (error) {

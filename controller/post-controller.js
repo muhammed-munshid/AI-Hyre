@@ -16,6 +16,10 @@ module.exports = {
                 return res.status(400).send({ message: 'Both image and video cannot be provided in a single post.' });
             }
 
+            const users = await User.findById(user_id)
+            if (condition) {
+                
+            }
             const post = new postModel({ user_id, text, image, video });
             await post.save();
             res.status(200).send(post);
@@ -27,43 +31,33 @@ module.exports = {
 
     togglePost: async (req, res) => {
         try {
-            const id = req.user._id
+            const user_id = req.user._id
+            const id = req.params.id
             const likeId = req.body.like
             let msg = "";
-            const user = await User.findById(id).select('-password')
+            const post = await postModel.findById(id)
             // Check if the follower already exists in the 'following' field
-            const likeIndex = user.profile_likes.indexOf(likeId);
+            const likeIndex = post.likes.indexOf(likeId);
             if (likeIndex !== -1) {
                 // Follower already exists, remove them from the 'following' field
-                user.profile_likes.splice(likeIndex, 1);
-                const postLike = await postModel.findOne({ user_id: id })
-                await postModel.findOneAndUpdate({ user_id: id }, {
-                    $pull: {
-                        likes: likeId
-                    }
-                })
+                post.likes.splice(likeIndex, 1);
                 msg = "removed";
             } else {
                 // Follower doesn't exist, add them to the 'following' field
-                user.profile_likes.push(likeId);
-                await postModel.findOneAndUpdate({ user_id: id }, {
-                    $push: {
-                        likes: likeId
-                    }
-                })
+                post.likes.push(likeId);
                 msg = "added";
                 const likedUser = await User.findById(likeId).select('-password')
                 console.log('likedUser: ', likedUser);
-                const text = `${likedUser.Firstname + ' ' + likedUser.Lastname} started following you`
+                const text = `${likedUser.name} started following you`
                 const type = 'like'
                 const link = likeId
                 const notification = new notificationModel({ user_id, text, type, link, img: likedUser.profile_pic })
                 await notification.save()
             }
             // Save the user with the updated 'following' field
-            await user.save();
+            await post.save();
 
-            res.json({ msg, updatedUser: user });
+            res.json({ msg, updatedPost: post });
         } catch (err) {
             console.log(err);
             res.status(500).send(err);
@@ -122,7 +116,7 @@ module.exports = {
             console.log('likedUser: ', likedUser);
             const text = `${likedUser.Firstname + ' ' + likedUser.Lastname} started following you`
             const type = 'comment'
-            const link = likeId
+            const link = id
             const notification = new notificationModel({ user_id, text, type, link, img: likedUser.profile_pic })
             await notification.save()
             const updatePost = await postModel.findById(id)
@@ -150,7 +144,10 @@ module.exports = {
     viewPostById: async (req, res) => {
         try {
             const postId = req.params.id;
-            const post = await postModel.findById(postId).populate('user_id');
+            const post = await postModel.findById(postId).populate({
+                path: 'user_id',
+                select: 'name profile_pic'
+            });
 
             if (!post) {
                 return res.status(404).json({ message: 'Post not found' });

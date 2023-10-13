@@ -17,6 +17,10 @@ const userSchema = new mongoose.Schema({
     profile_pic: {
         type: String
     },
+    followers: [{
+        type: Schema.Types.ObjectId,
+        ref: 'User',
+    }]
 
     // common fields for all users
 }, { discriminatorKey: 'role' });

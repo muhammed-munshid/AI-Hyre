@@ -261,8 +261,12 @@ module.exports = {
                 select: '-password'
             })
             const notifications = await notificationModel.find({ user_id: user_id })
-            const posts = await postModel.find().populate({
+            const posts = await postModel.find()
+            .populate({
                 path: 'user_id',
+                select: 'name profile_pic'
+            }).populate({
+                path: 'likes',
                 select: 'name profile_pic'
             })
             res.status(200).send({ jobs, notifications, posts });

@@ -8,7 +8,7 @@ module.exports = {
         try {
             const followerId = req.body.follower;
             let msg = "";
-            const user = await User.findById(req.params.id);
+            const user = await User.findById(req.params.id).select('-passsword')
             const user_id = user._id
             const followerIndex = user.followers.indexOf(followerId);
             if (followerIndex !== -1) {
@@ -21,7 +21,7 @@ module.exports = {
                 msg = "added";
                 const Follower = await User.findById(followerId).select('-password')
                 console.log('folllowers: ',Follower);
-                const text = `${Follower.Firstname + ' ' + Follower.Lastname} started following you`
+                const text = `${Follower.name} started following you`
                 const type = 'follow'
                 const link = followerId
                 const notification = new notificationModel({ user_id, text, type, link, img:Follower.profile_pic })
