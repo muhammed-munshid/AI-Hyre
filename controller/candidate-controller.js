@@ -256,32 +256,50 @@ module.exports = {
 
     dashboard: async (req, res) => {
         try {
-            const user_id = req.user._id
+            const user_id = req.user._id;
+
+            // Find the logged-in user and populate the 'followers' field
+            const user = await User.findById(user_id).select('followers');
+
             const jobs = await jobModel.find().populate({
                 path: 'recruiter',
                 select: '-password'
-            })
-            const notifications = await notificationModel.find({ user_id: user_id })
-            const post = await postModel.find()
-            .populate({
-              path: 'user_id',
-              select: 'name profile_pic'
-            })
-            .populate({
-              path: 'likes',
-              select: 'name profile_pic'
             });
-          
-          const posts = post.map(post => {
-            const { _doc, likes, ...cleanedPost } = post.toObject(); // Convert to plain JavaScript object
-            cleanedPost.likesCount = likes.length;
-            return cleanedPost;
-          });
-          
+
+            const notifications = await notificationModel.find({ user_id: user_id });
+
+            const post = await postModel.find()
+                .populate({
+                    path: 'user_id',
+                    select: 'name profile_pic'
+                })
+                .populate({
+                    path: 'likes',
+                    select: 'name profile_pic'
+                })
+                .populate({
+                    path: 'comments',
+                    select: 'message user_id time',
+                    populate: {
+                        path: 'user_id',
+                        select: 'name profile_pic'
+                    }
+                });
+
+            const posts = post.map(post => {
+                const { _doc, likes, ...cleanedPost } = post.toObject(); // Convert to plain JavaScript object
+                cleanedPost.likesCount = likes.length;
+
+                // Check if a follower is following you
+                cleanedPost.isFollowing = user.followers.includes(post.user_id);
+
+                return cleanedPost;
+            });
+
             res.status(200).send({ jobs, notifications, posts });
         } catch (error) {
             console.log(error);
-            res.status(500).send({ error: 'Somthing error' })
+            res.status(500).send({ error: 'Something went wrong' });
         }
     },
 
