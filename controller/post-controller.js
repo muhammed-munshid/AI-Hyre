@@ -16,10 +16,6 @@ module.exports = {
                 return res.status(400).send({ message: 'Both image and video cannot be provided in a single post.' });
             }
 
-            const users = await User.findById(user_id)
-            if (condition) {
-                
-            }
             const post = new postModel({ user_id, text, image, video });
             await post.save();
             res.status(200).send(post);
