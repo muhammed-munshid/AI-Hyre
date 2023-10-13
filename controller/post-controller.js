@@ -27,20 +27,19 @@ module.exports = {
 
     togglePost: async (req, res) => {
         try {
-            const user_id = req.user._id;
-            const id = req.params.id;
+            const user_id = req.user._id
+            const id = req.params.id
+            // const likeId = req.body.like
             let msg = "";
-
-            const post = await postModel.findById(id);
-
-            const likeIndex = post.likes.indexOf(user_id);
-
+            const post = await postModel.findById(id)
+            // Check if the follower already exists in the 'following' field
+            const likeIndex = post.likes.indexOf(user_id)
             if (likeIndex !== -1) {
-                // Follower already exists, remove them from the 'likes' array
+                // Follower already exists, remove them from the 'following' field
                 post.likes.splice(likeIndex, 1);
                 msg = "removed";
             } else {
-                // Follower doesn't exist, add them to the 'likes' array
+                // Follower doesn't exist, add them to the 'following' field
                 post.likes.push(user_id);
                 msg = "added";
                 const likedUser = await User.findById(user_id).select('-password')
@@ -50,7 +49,7 @@ module.exports = {
                 const notification = new notificationModel({ user_id, text, type, link, img: likedUser.profile_pic })
                 await notification.save()
             }
-
+            // Save the user with the updated 'following' field
             await post.save();
 
             res.json({ msg, updatedPost: post });
