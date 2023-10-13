@@ -33,24 +33,24 @@ module.exports = {
         try {
             const user_id = req.user._id
             const id = req.params.id
-            const likeId = req.body.like
+            // const likeId = req.body.like
             let msg = "";
             const post = await postModel.findById(id)
             // Check if the follower already exists in the 'following' field
-            const likeIndex = post.likes.indexOf(likeId);
+            const likeIndex = post.likes.indexOf(user_id);
             if (likeIndex !== -1) {
                 // Follower already exists, remove them from the 'following' field
                 post.likes.splice(likeIndex, 1);
                 msg = "removed";
             } else {
                 // Follower doesn't exist, add them to the 'following' field
-                post.likes.push(likeId);
+                post.likes.push(user_id);
                 msg = "added";
-                const likedUser = await User.findById(likeId).select('-password')
+                const likedUser = await User.findById(user_id).select('-password')
                 console.log('likedUser: ', likedUser);
                 const text = `${likedUser.name} started following you`
                 const type = 'like'
-                const link = likeId
+                const link = user_id
                 const notification = new notificationModel({ user_id, text, type, link, img: likedUser.profile_pic })
                 await notification.save()
             }

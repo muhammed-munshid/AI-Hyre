@@ -275,7 +275,7 @@ module.exports = {
                   likesCount: post.likes.length
                 };
               })
-            
+
             console.log('posts: ',posts);
             res.status(200).send({ jobs, notifications, posts });
         } catch (error) {
