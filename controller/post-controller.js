@@ -32,8 +32,22 @@ module.exports = {
             // const likeId = req.body.like
             let msg = "";
             const post = await postModel.findById(id)
+            // const checkingLike = post.likes.includes(user_id);
+            // if (checkingLike === true) {
+            //     await postModel.findByIdAndUpdate(id, {
+            //         $set: {
+            //             ckeckingLike: true
+            //         }
+            //     })
+            // } else {
+            //     await postModel.findByIdAndUpdate(id, {
+            //         $set: {
+            //             ckeckingLike: false
+            //         }
+            //     })
+            // }
             // Check if the follower already exists in the 'following' field
-            const likeIndex = post.likes.indexOf(user_id);
+            const likeIndex = post.likes.indexOf(user_id)
             if (likeIndex !== -1) {
                 // Follower already exists, remove them from the 'following' field
                 post.likes.splice(likeIndex, 1);

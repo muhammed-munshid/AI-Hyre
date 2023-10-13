@@ -4,7 +4,7 @@ const mongoose = require("mongoose");
 const postSchema = new mongoose.Schema({
     user_id: {
         type: Schema.Types.ObjectId,
-        ref:'User',
+        ref: 'User',
     },
     time: {
         type: Date,
@@ -16,7 +16,7 @@ const postSchema = new mongoose.Schema({
     image: {
         type: String
     },
-    video : {
+    video: {
         type: String
     },
     comments: [
@@ -35,7 +35,11 @@ const postSchema = new mongoose.Schema({
     likes: [{
         type: Schema.Types.ObjectId,
         ref: 'User'
-    }]
+    }],
+    // ckeckingLike: {
+    //     type: Boolean,
+    //     default: false
+    // }
 })
 
 postSchema.index({ _id: 1 });

@@ -285,16 +285,20 @@ module.exports = {
                         select: 'name profile_pic'
                     }
                 });
+                console.log(post,'post');
                 const posts = post.map(post => {
-                    const { _doc, likes, ...cleanedPost } = post.toObject(); // Convert to plain JavaScript object
-                    cleanedPost.likesCount = likes.length;
-                    cleanedPost.checkingLike = likes.includes(user_id);
-
-                // Check if a follower is following you
-                cleanedPost.isFollowing = user.followers.includes(post.user_id);
-
-                return cleanedPost;
-            });
+                    const { _doc, ...cleanedPost } = post.toObject(); // Convert to plain JavaScript object
+                    cleanedPost.likesCount = post.likes.length;
+                  
+                    // Check if the user has liked the post
+                    // cleanedPost.checkingLike = post.likes.some(like => like.user_id.toString() === user_id.toString());
+                    cleanedPost.checkingLike = post.likes.includes(user_id);
+                    // Check if a follower is following you
+                    cleanedPost.isFollowing = user.followers.includes(post.user_id._id);
+                  
+                    return cleanedPost;
+                  });
+            console.log('posts: ',posts);
 
             res.status(200).send({ jobs, notifications, posts });
         } catch (error) {
