@@ -45,7 +45,8 @@ const recruiterSchema = new mongoose.Schema({
         type: Boolean
     },
     is_company: {
-        type: Boolean
+        type: Boolean,
+        default: false
     },
     onboarding: {
         type: Boolean,

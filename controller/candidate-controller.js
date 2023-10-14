@@ -91,7 +91,7 @@ module.exports = {
         const jwtPayload = req.jwtPayload
         const token = req.token
         try {
-            if (jwtPayload.role === 'user') {
+            if (jwtPayload.role === 'candidate') {
                 if (req.user) {
                     await candidateModel.findByIdAndUpdate(req.user._id, {
                         $set: {
