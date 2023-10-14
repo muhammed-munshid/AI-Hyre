@@ -8,6 +8,7 @@ passport.initialize();
 router.get('/view-all', passport.authenticate('jwt', { session: false }), postController.viewAllPost)
 router.get('/view-by-followers',passport.authenticate('jwt', { session: false }), postController.viewAllPostByFollowers)
 router.get('/:id',passport.authenticate('jwt', { session: false }), postController.viewPostById)
+router.get('/liked-list/:id',passport.authenticate('jwt', { session: false }), postController.viewLikedList)
 
 router.post('/create-post', passport.authenticate('jwt', { session: false }), postController.addPost)
 router.post('/comment/:id', passport.authenticate('jwt', { session: false }), postController.addComment)

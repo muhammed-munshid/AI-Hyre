@@ -59,6 +59,20 @@ module.exports = {
         }
     },
 
+    viewLikedList: async (req, res) => {
+        try {
+            const id = req.params.id
+            const posts = await postModel.findById(id).populate({
+                path: 'likes',
+                select: 'name profile_pic'
+            });
+            res.status(200).send(posts.likes);
+        } catch (err) {
+            console.log(err);
+            res.status(500).send(err);
+        }
+    },
+
     updatePost: async (req, res) => {
         try {
             const id = req.params.id
