@@ -266,7 +266,7 @@ module.exports = {
                 select: '-password'
             });
 
-            const notifications = await notificationModel.find({ user_id: user_id }).sort({ time: -1 })
+            const notifications = await notificationModel.find({ user_id: user_id }).sort({ time: -1 }).limit(10)
 
             const post = await postModel.find()
                 .populate({
