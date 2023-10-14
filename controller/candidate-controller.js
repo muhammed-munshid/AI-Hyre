@@ -256,10 +256,9 @@ module.exports = {
     dashboard: async (req, res) => {
         try {
             const user_id = req.user._id;
-
             // Find the logged-in user and populate the 'followers' field
             const user = await User.findById(user_id).select('followers').populate('followers');
-            console.log(user)
+            console.log('user: ',user)
             const jobs = await jobModel.find().populate({
                 path: 'recruiter',
                 select: '-password'
@@ -275,7 +274,6 @@ module.exports = {
                 .populate({
                     path: 'likes',
                     select: 'name profile_pic role',
-
                 })
                 .populate({
                     path: 'comments',
@@ -295,7 +293,7 @@ module.exports = {
                 // cleanedPost.liked = post.likes.some(like => like.toString() === user_id.toString());
 
                 // Check if a follower is following you
-                cleanedPost.isFollowing = user.followers.includes(post.user_id._id);
+                cleanedPost.isFollowing = user.followers.includes(post.user_id);
                 cleanedPost.isUserLiked = post.likes.includes(user._id);
                 
                 return cleanedPost;
