@@ -3,10 +3,12 @@ const mongoose = require("mongoose");
 
 const postSchema = new mongoose.Schema({
     author: {
-        id:{type: Schema.Types.ObjectId,
-        ref: 'User'},
-        name:String,
-        pic:String
+        id: {
+            type: Schema.Types.ObjectId,
+            ref: 'User'
+        },
+        name: String,
+        pic: String
     },
     time: {
         type: Date,
@@ -42,14 +44,14 @@ const postSchema = new mongoose.Schema({
 
 
 
-postSchema.virtual('likesCount').get(function() {
+postSchema.virtual('likesCount').get(function () {
     return this.likes.length;
-  });
+});
 
-  postSchema.virtual('commentsCount').get(function() {
+postSchema.virtual('commentsCount').get(function () {
     return this.comments.length;
-  });
-  
+});
+
 
 // postSchema.index({ _id: 1 });
 

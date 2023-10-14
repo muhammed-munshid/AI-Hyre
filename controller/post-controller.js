@@ -18,7 +18,7 @@ module.exports = {
                 return res.status(400).send({ message: 'Both image and video cannot be provided in a single post.' });
             }
 
-            const post = new postModel({ author:{id:authorID, name, pic}, text, image, video, likes:[], comments:[] });
+            const post = new postModel({ author: { id: authorID, name, pic }, text, image, video, likes: [], comments: [] });
             await post.save();
             res.status(200).send(post);
         } catch (err) {
@@ -124,7 +124,7 @@ module.exports = {
                 }
             });
             const likedUser = await User.findById(user_id).select('-password')
-            const text = `${likedUser.Firstname + ' ' + likedUser.Lastname} started following you`
+            const text = `${likedUser.name} commented your post`
             const type = 'comment'
             const link = id
             const notification = new notificationModel({ user_id, text, type, link, img: likedUser.profile_pic })

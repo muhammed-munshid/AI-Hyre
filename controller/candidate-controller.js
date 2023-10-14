@@ -258,7 +258,6 @@ module.exports = {
             const user_id = req.user._id;
             // Find the logged-in user and populate the 'followers' field
             const user = await User.findById(user_id).select('followers').populate('followers');
-            console.log('user: ',user)
             const jobs = await jobModel.find().populate({
                 path: 'recruiter',
                 select: '-password'
@@ -268,8 +267,12 @@ module.exports = {
 
             const post = await postModel.find()
                 .populate({
-                    path: 'user_id',
-                    select: 'name profile_pic'
+                    path: 'author',
+                    select: 'id',
+                    populate: {
+                        path: 'id',
+                        select: 'name profile_pic'
+                    }
                 })
                 .populate({
                     path: 'likes',
@@ -285,20 +288,20 @@ module.exports = {
                 });
 
 
-            console.log(post)
-            const posts = post.map(post => {
-                const { _doc, ...cleanedPost } = post.toObject();
+                const posts = post.map(post => {
+                    const { _doc, ...cleanedPost } = post.toObject();
                 cleanedPost.likesCount = post.likes.length;
-
+                
                 // Check if the user has liked the post
                 // cleanedPost.liked = post.likes.some(like => like.toString() === user_id.toString());
                 // Check if a follower is following you
                 cleanedPost.isFollowing = user.followers.includes(post.user_id);
                 cleanedPost.isUserLiked = post.likes.includes(user._id);
-
+                
                 return cleanedPost;
             });
-
+            
+            console.log('posts: ',posts)
             res.status(200).send({ posts, jobs, notifications });
         } catch (error) {
             console.log(error);
