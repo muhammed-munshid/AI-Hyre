@@ -1,6 +1,7 @@
 const passport = require('passport');
 const candidateModel = require('../model/candidateModel');
 const recruiterModel = require('../model/recruiterModel');
+const User = require('../model/userModal');
 const JwtStrategy = require('passport-jwt').Strategy;
 const ExtractJwt = require('passport-jwt').ExtractJwt;
 // const GoogleStrategy = require('passport-google-oauth20').Strategy;
@@ -19,18 +20,18 @@ passport.use('jwt', new JwtStrategy(
 	},
 	async (req, jwtPayload, done) => {
 		try {
-			if (jwtPayload.role === 'user') {
-				const user = await candidateModel.findById(jwtPayload.id).exec();
-				if (user) {
+			if (jwtPayload.role === 'candidate') {
+				const candidate = await User.findById(jwtPayload.id).exec();
+				if (candidate) {
 					// Attach jwtPayload to the req object
 					req.jwtPayload = jwtPayload;
 					req.token = req.headers.authorization.split(' ')[1]; // Extract and store the token
-					return done(null, user); // Correct usage of done
+					return done(null, candidate); // Correct usage of done
 				} else {
 					return done(null, false); // Correct usage of done
 				}
 			} else if (jwtPayload.role === 'recruiter') {
-				const recruiter = await recruiterModel.findById(jwtPayload.id).exec();
+				const recruiter = await User.findById(jwtPayload.id).exec();
 				if (recruiter) {
 					// Attach jwtPayload to the req object
 					req.jwtPayload = jwtPayload;

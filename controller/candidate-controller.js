@@ -16,14 +16,14 @@ module.exports = {
             const salt = await bcrypt.genSalt(10)
             const hashedPassword = await bcrypt.hash(password, salt)
             password = hashedPassword
-            const userExist = await User.findOne({ email: email })
+            const userExist = await candidateModel.findOne({ email: email })
             if (!userExist) {
-                const user = new User({
+                const user = new candidateModel({
                     email,
                     password
                 });
                 await user.save();
-                const newUser = await User.findOne({ email: email })
+                const newUser = await candidateModel.findOne({ email: email })
                 newUser.password = undefined
                 const userPayload = {
                     id: user._id,
@@ -45,14 +45,14 @@ module.exports = {
     signIn: async (req, res) => {
         try {
             const { email, password } = req.body;
-            const user = await candidateModel.findOne({ email: email })
-            const recruiter = await recruiterModel.findOne({ email: email })
-            if (user) {
+            const candidate = await User.findOne({ email: email, role:'Candidate' })
+            const recruiter = await User.findOne({ email: email,  role:'Recruiter' })
+            if (candidate) {
                 const userPayload = {
-                    id: user._id,
-                    role: 'user',
+                    id: candidate._id,
+                    role: 'candidate',
                 };
-                const isMatchPswrd = await bcrypt.compare(password, user.password)
+                const isMatchPswrd = await bcrypt.compare(password, candidate.password)
                 if (!isMatchPswrd) {
                     res.status(401).send({ message: "Incorrect Password" })
                 } else {
@@ -60,7 +60,7 @@ module.exports = {
                     const token = jwt.sign(userPayload, process.env.JWT_SECRET, {
                         expiresIn: '30d'
                     })
-                    res.status(200).send({ message: "Login Success", _id: user._id, name: user.name, onboarding_1: user.onboarding_1, onboarding_2: user.onboarding_2, token: token, candidate: true })
+                    res.status(200).send({ message: "Login Success", _id: candidate._id, name: candidate.name, onboarding_1: candidate.onboarding_1, onboarding_2: candidate.onboarding_2, token: token, candidate: true })
                 }
             }
             else if (recruiter) {

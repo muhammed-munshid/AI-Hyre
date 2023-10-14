@@ -15,15 +15,15 @@ module.exports = {
             const salt = await bcrypt.genSalt(10)
             const hashedPassword = await bcrypt.hash(password, salt)
             password = hashedPassword
-            const recruiterExist = await User.findOne({ email: email })
+            const recruiterExist = await recruiterModel.findOne({ email: email })
 
             if (!recruiterExist) {
-                const recruiter = new User({
+                const recruiter = new recruiterModel({
                     email,
                     password
                 });
                 await recruiter.save();
-                const newRecruiter = await User.findOne({ email: email })
+                const newRecruiter = await recruiterModel.findOne({ email: email })
                 newRecruiter.password = undefined
                 const recruiterPayload = {
                     id: recruiter._id,
