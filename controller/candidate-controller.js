@@ -27,7 +27,7 @@ module.exports = {
                 newUser.password = undefined
                 const userPayload = {
                     id: user._id,
-                    role: 'user',
+                    role: 'candidate',
                 };
                 const token = jwt.sign(userPayload, process.env.JWT_SECRET, {
                     expiresIn: '30d'
