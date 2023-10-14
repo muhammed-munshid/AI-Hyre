@@ -2,9 +2,11 @@ const { Schema } = require("mongoose");
 const mongoose = require("mongoose");
 
 const postSchema = new mongoose.Schema({
-    user_id: {
-        type: Schema.Types.ObjectId,
-        ref: 'User',
+    author: {
+        id:{type: Schema.Types.ObjectId,
+        ref: 'User'},
+        name:String,
+        pic:String
     },
     time: {
         type: Date,

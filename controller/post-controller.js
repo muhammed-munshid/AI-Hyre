@@ -8,7 +8,9 @@ module.exports = {
 
     addPost: async (req, res) => {
         try {
-            const user_id = req.user._id;
+            const authorID = req.user._id;
+            const pic = req.user.profile_pic;
+            const name = req.user.name;
             const { text, image, video } = req.body;
 
             // Check if both image and video are present
@@ -16,7 +18,7 @@ module.exports = {
                 return res.status(400).send({ message: 'Both image and video cannot be provided in a single post.' });
             }
 
-            const post = new postModel({ user_id, text, image, video });
+            const post = new postModel({ author:{id:authorID, name, pic}, text, image, video, likes:[], comments:[] });
             await post.save();
             res.status(200).send(post);
         } catch (err) {
@@ -43,9 +45,9 @@ module.exports = {
                 post.likes.push(user_id);
                 msg = "added";
                 const likedUser = await User.findById(user_id).select('-password')
-                const text = `${likedUser.name} started following you`
+                const text = `${likedUser.name} liked your post`
                 const type = 'like'
-                const link = user_id
+                const link = post._id
                 const notification = new notificationModel({ user_id, text, type, link, img: likedUser.profile_pic })
                 await notification.save()
             }
@@ -152,23 +154,12 @@ module.exports = {
     viewPostById: async (req, res) => {
         try {
             const postId = req.params.id;
-            const post = await postModel.findById(postId).populate({
-                path: 'user_id',
-                select: 'name profile_pic'
-            });
+            const post = await postModel.findById(postId)
 
             if (!post) {
                 return res.status(404).json({ message: 'Post not found' });
             }
 
-            // The 'user_id' will point to the common User model
-            const user = await User.findById(post.user_id).select('-password');
-
-            if (user) {
-                return res.status(200).json({ post });
-            } else {
-                return res.status(404).json({ message: 'User not found' });
-            }
         } catch (err) {
             console.error(err);
             res.status(500).send(err);

@@ -45,8 +45,8 @@ module.exports = {
     signIn: async (req, res) => {
         try {
             const { email, password } = req.body;
-            const candidate = await User.findOne({ email: email, role:'Candidate' })
-            const recruiter = await User.findOne({ email: email,  role:'Recruiter' })
+            const candidate = await User.findOne({ email: email, role: 'Candidate' })
+            const recruiter = await User.findOne({ email: email, role: 'Recruiter' })
             if (candidate) {
                 const userPayload = {
                     id: candidate._id,
@@ -285,19 +285,19 @@ module.exports = {
                         select: 'name profile_pic'
                     }
                 });
-     
 
+
+            console.log(post)
             const posts = post.map(post => {
                 const { _doc, ...cleanedPost } = post.toObject();
                 cleanedPost.likesCount = post.likes.length;
 
                 // Check if the user has liked the post
                 // cleanedPost.liked = post.likes.some(like => like.toString() === user_id.toString());
-
                 // Check if a follower is following you
                 cleanedPost.isFollowing = user.followers.includes(post.user_id._id);
                 cleanedPost.isUserLiked = post.likes.includes(user._id);
-                
+
                 return cleanedPost;
             });
 
