@@ -6,6 +6,7 @@ const moment = require('moment');
 const recruiterModel = require("../model/recruiterModel");
 const notificationModel = require("../model/notificationModel");
 const User = require("../model/userModal");
+const postModel = require("../model/postModel");
 
 module.exports = {
 
