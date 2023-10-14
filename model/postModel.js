@@ -38,6 +38,17 @@ const postSchema = new mongoose.Schema({
     }]
 })
 
+
+
+postSchema.virtual('likesCount').get(function() {
+    return this.likes.length;
+  });
+
+  postSchema.virtual('commentsCount').get(function() {
+    return this.comments.length;
+  });
+  
+
 // postSchema.index({ _id: 1 });
 
 const postModel = mongoose.model('post', postSchema)

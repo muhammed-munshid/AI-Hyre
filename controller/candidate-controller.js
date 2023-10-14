@@ -258,8 +258,8 @@ module.exports = {
             const user_id = req.user._id;
 
             // Find the logged-in user and populate the 'followers' field
-            const user = await User.findById(user_id).select('followers');
-
+            const user = await User.findById(user_id).select('followers').populate('followers');
+            console.log(user)
             const jobs = await jobModel.find().populate({
                 path: 'recruiter',
                 select: '-password'
@@ -274,7 +274,8 @@ module.exports = {
                 })
                 .populate({
                     path: 'likes',
-                    select: 'name profile_pic'
+                    select: 'name profile_pic role',
+
                 })
                 .populate({
                     path: 'comments',
@@ -284,20 +285,22 @@ module.exports = {
                         select: 'name profile_pic'
                     }
                 });
-                const posts = post.map(post => {
-                    const { _doc, ...cleanedPost } = post.toObject();
-                    cleanedPost.likesCount = post.likes.length;
-                  
-                    // Check if the user has liked the post
-                    // cleanedPost.liked = post.likes.some(like => like.toString() === user_id.toString());
-                  
-                    // Check if a follower is following you
-                    cleanedPost.isFollowing = user.followers.includes(post.user_id._id);
-                  
-                    return cleanedPost;
-                  });
 
-            res.status(200).send({ jobs, notifications, posts });
+            const posts = post.map(post => {
+                const { _doc, ...cleanedPost } = post.toObject();
+                cleanedPost.likesCount = post.likes.length;
+
+                // Check if the user has liked the post
+                // cleanedPost.liked = post.likes.some(like => like.toString() === user_id.toString());
+
+                // Check if a follower is following you
+                cleanedPost.isFollowing = user.followers.includes(post.user_id._id);
+                cleanedPost.isUserLiked = post.likes.includes(user._id);
+                
+                return cleanedPost;
+            });
+
+            res.status(200).send({ posts });
         } catch (error) {
             console.log(error);
             res.status(500).send({ error: 'Something went wrong' });
