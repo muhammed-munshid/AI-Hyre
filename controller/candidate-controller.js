@@ -301,7 +301,7 @@ module.exports = {
                 return cleanedPost;
             });
 
-            res.status(200).send({ posts });
+            res.status(200).send({ posts, jobs, notifications });
         } catch (error) {
             console.log(error);
             res.status(500).send({ error: 'Something went wrong' });
