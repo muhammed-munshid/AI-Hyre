@@ -10,18 +10,24 @@ module.exports = {
 
     signUp: async (req, res) => {
         try {
+            console.log('djgfs');
             let { email, password } = req.body;
+            console.log('req', req.body);
             const salt = await bcrypt.genSalt(10)
+            console.log('salt:',salt);
             const hashedPassword = await bcrypt.hash(password, salt)
             password = hashedPassword
-            const recruiterExist = await recruiterModel.findOne({ email: email })
+            const recruiterExist = await User.findOne({ email: email })
+            console.log('recruiterExist:',recruiterExist);
+
             if (!recruiterExist) {
-                const recruiter = new recruiterModel({
+                const recruiter = new User({
                     email,
                     password
                 });
                 await recruiter.save();
-                const newRecruiter = await recruiterModel.findOne({ email: email })
+                const newRecruiter = await User.findOne({ email: email })
+                console.log('jkdgsfug', newRecruiter);
                 newRecruiter.password = undefined
                 const recruiterPayload = {
                     id: recruiter._id,
@@ -100,6 +106,36 @@ module.exports = {
             const updatedRecruiter = await recruiterModel.findById(recruiterId)
             updatedRecruiter.password = undefined
             res.status(200).send({ message: "Profile Updated", updatedRecruiter: updatedRecruiter })
+        } catch (error) {
+            console.log(error);
+            res.status(500).send({ error: 'Somthing error' })
+        }
+    },
+
+    updateRecruiter: async (req, res) => {
+        try {
+            const userId = req.user._id
+            const { name, job_title, phone, profile_pic, company_name, website_link, industry, type, company_logo, founded, size_of_company, location, company_verified } = req.body;
+            await recruiterModel.findByIdAndUpdate(userId, {
+                $set: {
+                    name,
+                    job_title,
+                    phone,
+                    profile_pic,
+                    company_name,
+                    website_link,
+                    industry,
+                    type,
+                    company_logo,
+                    founded,
+                    size_of_company,
+                    location,
+                    company_verified
+                }
+            })
+            const updatedUser = await recruiterModel.findById(userId)
+            updatedUser.password = undefined
+            res.status(200).send({ message: "Recruiter updated", _id: updatedUser._id })
         } catch (error) {
             console.log(error);
             res.status(500).send({ error: 'Somthing error' })

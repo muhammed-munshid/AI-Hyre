@@ -17,14 +17,14 @@ module.exports = {
             const salt = await bcrypt.genSalt(10)
             const hashedPassword = await bcrypt.hash(password, salt)
             password = hashedPassword
-            const userExist = await candidateModel.findOne({ email: email })
+            const userExist = await User.findOne({ email: email })
             if (!userExist) {
-                const user = new candidateModel({
+                const user = new User({
                     email,
                     password
                 });
                 await user.save();
-                const newUser = await candidateModel.findOne({ email: email })
+                const newUser = await User.findOne({ email: email })
                 newUser.password = undefined
                 const userPayload = {
                     id: user._id,
