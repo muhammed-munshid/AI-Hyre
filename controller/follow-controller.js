@@ -20,7 +20,6 @@ module.exports = {
                 user.followers.push(followerId);
                 msg = "added";
                 const Follower = await User.findById(followerId).select('-password')
-                console.log('folllowers: ',Follower);
                 const text = `${Follower.name} started following you`
                 const type = 'follow'
                 const link = followerId
@@ -51,7 +50,6 @@ module.exports = {
                     }
                 }
             });
-            console.log(updatePost);
             res.status(200).send(updatePost);
         } catch (err) {
             console.log(err);

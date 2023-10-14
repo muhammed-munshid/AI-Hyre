@@ -1,11 +1,9 @@
 const candidateModel = require("../model/candidateModel");
 const bcrypt = require('bcrypt')
-const crypto = require('crypto')
 const jwt = require('jsonwebtoken');
 const jobModel = require("../model/jobModel");
 const moment = require('moment');
 const recruiterModel = require("../model/recruiterModel");
-const chatModel = require("../model/chatModel");
 const notificationModel = require("../model/notificationModel");
 const User = require("../model/userModal");
 
@@ -297,8 +295,6 @@ module.exports = {
                   
                     return cleanedPost;
                   });
-                  
-            console.log('posts: ',posts);
 
             res.status(200).send({ jobs, notifications, posts });
         } catch (error) {
@@ -370,8 +366,6 @@ module.exports = {
                     );
                 });
             });
-
-            console.log(matchingJobs);
             res.status(200).json(matchingJobs)
         } catch (error) {
             console.log(error);

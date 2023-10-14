@@ -14,6 +14,7 @@ router.post('/sign-up', recruiterController.signUp)
 router.post('/add-job', passport.authenticate('jwt', { session: false }), recruiterController.addJob)
 
 router.put('/add-profile', passport.authenticate('jwt', { session: false }), recruiterController.addProfile)
+router.put('/update-recruiter', passport.authenticate('jwt', { session: false }), recruiterController.updateRecruiter)
 router.put('/edit-job/:id', recruiterController.editJob)
 
 router.delete('/delete-job/:id',recruiterController.deleteJob)

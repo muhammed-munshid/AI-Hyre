@@ -57,6 +57,6 @@ const recruiterSchema = new mongoose.Schema({
     }]
 })
 
-const Recruiter = User.discriminator('Recruiter', recruiterSchema);
+const recruiterModel = User.discriminator('Recruiter', recruiterSchema);
 
-module.exports = Recruiter;
+module.exports = recruiterModel;

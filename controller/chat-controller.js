@@ -1,27 +1,26 @@
 const crypto = require('crypto')
 const chatModel = require("../model/chatModel");
-const candidateModel = require('../model/candidateModel');
+const User = require('../model/userModal');
 
 module.exports = {
 
     addChat: async (req, res) => {
         try {
-            const { candidate, recruiter, job } = req.body;
+            const { users, job } = req.body;
 
-            // Check if a chat already exists between the two candidaate and post
-            const existingChat = await chatModel.findOne({ candidate, recruiter, job });
-            console.log('exist:', existingChat);
-
+            // Check if a chat already exists between the two users and post
+            const existingChat = await chatModel.findOne({ users: { $all: users }, job: job });
+        
             if (existingChat) {
-                // A chat already exists, so return it instead of creating a new one
-                res.status(200).send(existingChat);
-                return;
+              // A chat already exists, so return it instead of creating a new one
+              res.status(200).send(existingChat);
+              return;
             }
-
+        
             // Create a new chat if one doesn't already exist
-            const chat = new chatModel({ candidate, recruiter, job });
+            const chat = new chatModel({ users, job });
             await chat.save();
-            res.status(200).send(chat);
+            res.status(201).send(chat);
         } catch (err) {
             console.log(err);
             res.status(500).send(err);
@@ -31,8 +30,7 @@ module.exports = {
 
     viewMessageById: async (req, res) => {
         try {
-            const chat = await chatModel.findById(req.params.id).populate('candidate recruiter messages.sender messages.receiver', 'name email').maxTimeMS(20000)
-            console.log('chat', chat.messages);
+            const chat = await chatModel.findById(req.params.id).populate('user messages.sender messages.receiver', 'name email')
             res.send(chat);
         } catch (err) {
             console.log(err)
@@ -73,13 +71,9 @@ module.exports = {
     viewChat: async (req, res) => {
         try {
             const id = req.params.id
-            console.log(id);
-            const candidate = await candidateModel.findById(id)
-            const recruiter = await recruiterModel.findById(id)
-            console.log('recruiter:',recruiter);
-            if (candidate) {                
-                const chats = await chatModel.find({ candidate: id })
-                  .populate({ path: 'candidate', select: 'name', transform: 'name' })
+            const user = await User.findById(id)          
+                const chats = await chatModel.find({ users: id })
+                  .populate({ path: 'users', select: 'name', transform: 'name' })
                   .populate({
                     path: 'messages',
                     options: { sort: { time: -1 }, limit: 1 },
@@ -97,7 +91,7 @@ module.exports = {
                   });
                   return {
                     id: chat._id,
-                    candidate: chat.candidate,
+                    users: chat.users,
                     post: chat.post,
                     lastMessage: chat.messages[0]?.message,
                     lastMessageTime: chat.messages[0]?.time,
@@ -105,37 +99,6 @@ module.exports = {
                   };
                 }));
                 res.send(chatList);
-            } else if (recruiter) {
-                const chats = await chatModel.find({ recruiter: id })
-                  .populate({ path: 'recruiter', select: 'name', transform: 'name' })
-                  .populate({
-                    path: 'messages',
-                    options: { sort: { time: -1 }, limit: 1 },
-                    populate: {
-                      path: 'sender receiver',
-                      select: 'name'
-                    }
-                  })
-                  .exec();
-                const chatList = await Promise.all(chats.map(async chat => {
-                  const unreadCount = await chatModel.countDocuments({
-                    _id: chat._id,
-                    'messages.status': 'sent',
-                    'messages.sender': { $ne: id }
-                  });
-                  return {
-                    id: chat._id,
-                    recruiter: chat.recruiter,
-                    post: chat.post,
-                    lastMessage: chat.messages[0]?.message,
-                    lastMessageTime: chat.messages[0]?.time,
-                    unreadCount
-                  };
-                }));
-                res.send(chatList);
-            } else {
-                res.status(500).send('something error');
-            }
         } catch (err) {
             console.log(err);
             res.status(500).send(err);
@@ -153,7 +116,6 @@ module.exports = {
             const { message, sender, receiver } = req.body;
             const messageId = crypto.randomBytes(5).toString('hex');
 
-
             chat.messages.push({
                 id: messageId,
                 message,
@@ -164,7 +126,6 @@ module.exports = {
             });
 
             await chat.save();
-
             res.status(200).send(chat);
 
         } catch (err) {

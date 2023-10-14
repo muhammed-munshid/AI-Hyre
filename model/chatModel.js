@@ -2,16 +2,11 @@ const { Schema } = require("mongoose");
 const mongoose = require("mongoose");
 
 const chatSchema = new mongoose.Schema({
-    recruiter: {
+    users: [{
         type: Schema.Types.ObjectId,
-        ref: 'recruiter',
+        ref: 'User',
         required: true
-    },
-    candidate: {
-        type: Schema.Types.ObjectId,
-        ref: 'candidate',
-        required: true
-    },
+    }],
     job: {
         type: Schema.Types.ObjectId,
         ref: 'jobs',
@@ -25,12 +20,12 @@ const chatSchema = new mongoose.Schema({
         id: { type: String, required: true },
         sender: {
             type: Schema.Types.ObjectId,
-            enum: ['candidate', 'recruiter'],
+            ref: 'User',
             required: true
         },
         receiver: {
             type: Schema.Types.ObjectId,
-            enum: ['candidate', 'recruiter'],
+            ref: 'User',
             required: true
         },
         time: {
@@ -47,6 +42,7 @@ const chatSchema = new mongoose.Schema({
     }]
 });
 
-chatSchema.index({ _id: 1 });
+// chatSchema.index({ _id: 1 });
 
-module.exports = chatModel = mongoose.model('chats', chatSchema);
+const chatModel = mongoose.model('chats', chatSchema);
+module.exports = chatModel

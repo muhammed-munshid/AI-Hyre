@@ -108,7 +108,6 @@ module.exports = {
                 }
             });
             const likedUser = await User.findById(user_id).select('-password')
-            console.log('likedUser: ', likedUser);
             const text = `${likedUser.Firstname + ' ' + likedUser.Lastname} started following you`
             const type = 'comment'
             const link = id
@@ -166,7 +165,6 @@ module.exports = {
         try {
             const id = req.user._id
             const user = await User.findById(id)
-            console.log(user);
             const ids = user.followers
             const followers = await User.find({ _id: { $in: ids } });
             const followersIds = followers.map((follower) => follower._id);

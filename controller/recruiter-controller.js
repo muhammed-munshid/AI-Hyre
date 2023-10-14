@@ -10,15 +10,12 @@ module.exports = {
 
     signUp: async (req, res) => {
         try {
-            console.log('djgfs');
             let { email, password } = req.body;
             console.log('req', req.body);
             const salt = await bcrypt.genSalt(10)
-            console.log('salt:',salt);
             const hashedPassword = await bcrypt.hash(password, salt)
             password = hashedPassword
             const recruiterExist = await User.findOne({ email: email })
-            console.log('recruiterExist:',recruiterExist);
 
             if (!recruiterExist) {
                 const recruiter = new User({
@@ -27,7 +24,6 @@ module.exports = {
                 });
                 await recruiter.save();
                 const newRecruiter = await User.findOne({ email: email })
-                console.log('jkdgsfug', newRecruiter);
                 newRecruiter.password = undefined
                 const recruiterPayload = {
                     id: recruiter._id,

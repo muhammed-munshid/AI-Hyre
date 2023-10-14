@@ -35,13 +35,10 @@ const postSchema = new mongoose.Schema({
     likes: [{
         type: Schema.Types.ObjectId,
         ref: 'User'
-    }],
-    // ckeckingLike: {
-    //     type: Boolean,
-    //     default: false
-    // }
+    }]
 })
 
-postSchema.index({ _id: 1 });
+// postSchema.index({ _id: 1 });
 
-module.exports = postModel = mongoose.model('post', postSchema)
+const postModel = mongoose.model('post', postSchema)
+module.exports = postModel

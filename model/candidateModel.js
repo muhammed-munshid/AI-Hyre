@@ -92,6 +92,6 @@ const candidateSchema = new mongoose.Schema({
 })
 
 
-const Candidate = User.discriminator('Candidate', candidateSchema);
+const candidateModel = User.discriminator('Candidate', candidateSchema);
 
-module.exports = Candidate;
+module.exports = candidateModel;
