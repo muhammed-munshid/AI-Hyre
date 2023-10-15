@@ -146,10 +146,14 @@ module.exports = {
             const notifications = await notificationModel.find({ user_id: user_id });
 
             const post = await postModel.find()
-                .populate({
-                    path: 'user_id',
+            .populate({
+                path: 'author',
+                select: 'id',
+                populate: {
+                    path: 'id',
                     select: 'name profile_pic'
-                })
+                }
+            })
                 // .populate({
                 //     path: 'likes',
                 //     select: 'name profile_pic'
