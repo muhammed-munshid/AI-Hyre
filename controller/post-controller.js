@@ -123,11 +123,11 @@ module.exports = {
                     }
                 }
             });
-            const likedUser = await User.findById(user_id).select('-password')
-            const text = `${likedUser.name} commented your post`
+            const commentedUser = await User.findById(user_id).select('-password')
+            const text = `${commentedUser.name} commented your post`
             const type = 'comment'
             const link = id
-            const notification = new notificationModel({ user_id, text, type, link, img: likedUser.profile_pic })
+            const notification = new notificationModel({ user_id, text, type, link, img: commentedUser.profile_pic })
             await notification.save()
             const updatePost = await postModel.findById(id)
             res.status(200).send(updatePost);
@@ -139,11 +139,15 @@ module.exports = {
 
     viewAllPost: async (req, res) => {
         try {
-            const posts = await postModel.find().populate({
-                path: 'user_id',
-                select: '-password'
-            });
-
+            const posts = await postModel.find()
+                .populate({
+                    path: 'author',
+                    select: 'id',
+                    populate: {
+                        path: 'id',
+                        select: 'name profile_pic'
+                    }
+                })
             res.status(200).send(posts);
         } catch (err) {
             console.log(err);
@@ -167,20 +171,24 @@ module.exports = {
 
     viewAllPostByFollowers: async (req, res) => {
         try {
-            const id = req.user._id
-            const user = await User.findById(id)
-            const ids = user.followers
+            const id = req.user._id;
+            const user = await User.findById(id);
+            const ids = user.followers;
             const followers = await User.find({ _id: { $in: ids } });
             const followersIds = followers.map((follower) => follower._id);
-            const posts = await postModel.find({ user_id: { $in: followersIds } }).populate({
-                path: 'user_id',
-                select: '-password'
-            });
+
+            const posts = await postModel.find({ 'author._id': { $in: followersIds } })
+                .populate({
+                    path: 'author.id',
+                    select: 'name profile_pic',
+                });
+
             res.status(200).send(posts);
         } catch (err) {
             console.log(err);
             res.status(500).send(err);
         }
-    },
+    }
+
 
 }
