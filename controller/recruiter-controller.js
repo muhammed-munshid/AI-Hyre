@@ -163,17 +163,26 @@ module.exports = {
                     }
                 });
 
-            const posts = post.map(post => {
-                const { _doc, likes, ...cleanedPost } = post.toObject(); // Convert to plain JavaScript object
-                cleanedPost.likesCount = likes.length;
-
-                // Check if a follower is following you
-                cleanedPost.isFollowing = user.followers.includes(post.user_id);
-                cleanedPost.isUserLiked = post.likes.includes(user._id);
-
-                return cleanedPost;
-            });
-
+                const posts = post.map(post => {
+                    const { _doc, ...cleanedPost } = post.toObject();
+                    cleanedPost.likesCount = post.likes.length;
+                
+                    // Check if a follower is following you
+                    if (user.followers && post.author.id) {
+                        const isFollowing = user.followers.some(follower => {
+                            return follower._id.toString() === post.author.id._id.toString();
+                        });
+                        cleanedPost.isFollowing = isFollowing;
+                    } else {
+                        cleanedPost.isFollowing = false; // Handle the case where user.followers or post.author.id is not defined
+                    }
+                
+                    // Check if the user has liked the post
+                    cleanedPost.isUserLiked = post.likes.includes(user_id);
+                
+                    return cleanedPost;
+                });
+                
             res.status(200).send({ candidates, notifications, posts })
         } catch (error) {
             console.log(error);

@@ -308,8 +308,6 @@ module.exports = {
                     return cleanedPost;
                 });
                 
-            
-            // console.log('posts: ',posts)
             res.status(200).send({ posts, jobs, notifications });
         } catch (error) {
             console.log(error);
