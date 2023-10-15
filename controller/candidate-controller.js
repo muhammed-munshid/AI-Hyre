@@ -344,7 +344,7 @@ module.exports = {
     jobById: async (req, res) => {
         try {
             const jobById = req.params.id
-            const job = await jobModel.findById(jobById)
+            const job = await jobModel.findById(jobById).populate('recruiter')
             res.status(200).send(job)
         } catch (error) {
             console.log(error);

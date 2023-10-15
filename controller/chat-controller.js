@@ -30,7 +30,7 @@ module.exports = {
 
     viewMessageById: async (req, res) => {
         try {
-            const chat = await chatModel.findById(req.params.id).populate('user messages.sender messages.receiver', 'name email')
+            const chat = await chatModel.findById(req.params.id).populate('users messages.sender messages.receiver', 'name email')
             res.send(chat);
         } catch (err) {
             console.log(err)
@@ -71,7 +71,7 @@ module.exports = {
     viewChat: async (req, res) => {
         try {
             const id = req.params.id
-            const user = await User.findById(id)          
+            const users = await User.findById(id)          
                 const chats = await chatModel.find({ users: id })
                   .populate({ path: 'users', select: 'name', transform: 'name' })
                   .populate({

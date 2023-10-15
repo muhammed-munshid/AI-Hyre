@@ -142,18 +142,18 @@ module.exports = {
         try {
             const user_id = req.user._id
             const user = await User.findById(user_id).select('followers').populate('followers')
-            const candidates = await candidateModel.find({}, { password: 0 })
+            const candidates = await candidateModel.find().select('profile_pic name followers experience about_us skill_set')
             const notifications = await notificationModel.find({ user_id: user_id });
 
             const post = await postModel.find()
-            .populate({
-                path: 'author',
-                select: 'id',
-                populate: {
-                    path: 'id',
-                    select: 'name profile_pic'
-                }
-            })
+                .populate({
+                    path: 'author',
+                    select: 'id',
+                    populate: {
+                        path: 'id',
+                        select: 'name profile_pic'
+                    }
+                })
                 // .populate({
                 //     path: 'likes',
                 //     select: 'name profile_pic'
@@ -167,26 +167,26 @@ module.exports = {
                     }
                 });
 
-                const posts = post.map(post => {
-                    const { _doc, ...cleanedPost } = post.toObject();
-                    cleanedPost.likesCount = post.likes.length;
-                
-                    // Check if a follower is following you
-                    if (user.followers && post.author.id) {
-                        const isFollowing = user.followers.some(follower => {
-                            return follower._id.toString() === post.author.id._id.toString();
-                        });
-                        cleanedPost.isFollowing = isFollowing;
-                    } else {
-                        cleanedPost.isFollowing = false; // Handle the case where user.followers or post.author.id is not defined
-                    }
-                
-                    // Check if the user has liked the post
-                    cleanedPost.isUserLiked = post.likes.includes(user_id);
-                
-                    return cleanedPost;
-                });
-                
+            const posts = post.map(post => {
+                const { _doc, ...cleanedPost } = post.toObject();
+                cleanedPost.likesCount = post.likes.length;
+
+                // Check if a follower is following you
+                if (user.followers && post.author.id) {
+                    const isFollowing = user.followers.some(follower => {
+                        return follower._id.toString() === post.author.id._id.toString();
+                    });
+                    cleanedPost.isFollowing = isFollowing;
+                } else {
+                    cleanedPost.isFollowing = false; // Handle the case where user.followers or post.author.id is not defined
+                }
+
+                // Check if the user has liked the post
+                cleanedPost.isUserLiked = post.likes.includes(user_id);
+
+                return cleanedPost;
+            });
+
             res.status(200).send({ candidates, notifications, posts })
         } catch (error) {
             console.log(error);
@@ -233,7 +233,7 @@ module.exports = {
             });
             await job.save();
             const jobs = await jobModel.find()
-            res.status(200).send({ message: 'Job created successful', jobs: jobs })
+            res.status(200).send({ message: 'Job created', jobs: jobs })
         } catch (error) {
             console.log(error);
             res.status(500).send({ error: 'Something Error' })
@@ -277,7 +277,7 @@ module.exports = {
 
     jobs: async (req, res) => {
         try {
-            const jobs = await jobModel.find()
+            const jobs = await jobModel.find().populate('recruiter')
             res.status(200).send({ jobs: jobs })
         } catch (error) {
             console.log(error);
@@ -288,7 +288,10 @@ module.exports = {
     jobById: async (req, res) => {
         try {
             const jobById = req.params.id
-            const job = await jobModel.findById(jobById)
+            const job = await jobModel.findById(jobById).populate('recruiter')
+            if (!job) {
+                return res.status(404).send({ message: 'job not available' })
+            }
             res.status(200).send({ job: job })
         } catch (error) {
             console.log(error);
