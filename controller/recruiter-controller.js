@@ -5,13 +5,13 @@ const candidateModel = require('../model/candidateModel');
 const jobModel = require('../model/jobModel');
 const notificationModel = require('../model/notificationModel');
 const User = require('../model/userModal');
+const postModel = require('../model/postModel');
 
 module.exports = {
 
     signUp: async (req, res) => {
         try {
             let { email, password } = req.body;
-            console.log('req', req.body);
             const salt = await bcrypt.genSalt(10)
             const hashedPassword = await bcrypt.hash(password, salt)
             password = hashedPassword
@@ -141,7 +141,7 @@ module.exports = {
     dashboard: async (req, res) => {
         try {
             const user_id = req.user._id
-            const user = await User.findById(user_id).select('followers');
+            const user = await User.findById(user_id).select('followers').populate('followers')
             const candidates = await candidateModel.find({}, { password: 0 })
             const notifications = await notificationModel.find({ user_id: user_id });
 
@@ -150,10 +150,10 @@ module.exports = {
                     path: 'user_id',
                     select: 'name profile_pic'
                 })
-                .populate({
-                    path: 'likes',
-                    select: 'name profile_pic'
-                })
+                // .populate({
+                //     path: 'likes',
+                //     select: 'name profile_pic'
+                // })
                 .populate({
                     path: 'comments',
                     select: 'message user_id time',
@@ -169,6 +169,7 @@ module.exports = {
 
                 // Check if a follower is following you
                 cleanedPost.isFollowing = user.followers.includes(post.user_id);
+                cleanedPost.isUserLiked = post.likes.includes(user._id);
 
                 return cleanedPost;
             });

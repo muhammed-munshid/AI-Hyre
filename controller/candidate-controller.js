@@ -274,10 +274,10 @@ module.exports = {
                         select: 'name profile_pic'
                     }
                 })
-                .populate({
-                    path: 'likes',
-                    select: 'name profile_pic role',
-                })
+                // .populate({
+                //     path: 'likes',
+                //     select: 'name profile_pic role',
+                // })
                 .populate({
                     path: 'comments',
                     select: 'message user_id time',
@@ -290,18 +290,26 @@ module.exports = {
 
                 const posts = post.map(post => {
                     const { _doc, ...cleanedPost } = post.toObject();
-                cleanedPost.likesCount = post.likes.length;
+                    cleanedPost.likesCount = post.likes.length;
                 
-                // Check if the user has liked the post
-                // cleanedPost.liked = post.likes.some(like => like.toString() === user_id.toString());
-                // Check if a follower is following you
-                cleanedPost.isFollowing = user.followers.includes(post.user_id);
-                cleanedPost.isUserLiked = post.likes.includes(user._id);
+                    // Check if a follower is following you
+                    if (user.followers && post.author.id) {
+                        const isFollowing = user.followers.some(follower => {
+                            return follower._id.toString() === post.author.id._id.toString();
+                        });
+                        cleanedPost.isFollowing = isFollowing;
+                    } else {
+                        cleanedPost.isFollowing = false; // Handle the case where user.followers or post.author.id is not defined
+                    }
                 
-                return cleanedPost;
-            });
+                    // Check if the user has liked the post
+                    cleanedPost.isUserLiked = post.likes.includes(user_id);
+                
+                    return cleanedPost;
+                });
+                
             
-            console.log('posts: ',posts)
+            // console.log('posts: ',posts)
             res.status(200).send({ posts, jobs, notifications });
         } catch (error) {
             console.log(error);

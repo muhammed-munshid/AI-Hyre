@@ -37,26 +37,6 @@ module.exports = {
         }
     },
 
-    addComment: async (req, res) => {
-        try {
-            const user_id = req.user._id
-            const id = req.params.id
-            const { message } = req.body;
-            const updatePost = await postModel.findByIdAndUpdate(id, {
-                $push: {
-                    comments: {
-                        message,
-                        user_id
-                    }
-                }
-            });
-            res.status(200).send(updatePost);
-        } catch (err) {
-            console.log(err);
-            res.status(500).send(err);
-        }
-    },
-
     myFollowers: async (req, res) => {
         try {
             const id = req.params.id
