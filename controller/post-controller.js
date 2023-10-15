@@ -176,8 +176,7 @@ module.exports = {
             const ids = user.followers;
             const followers = await User.find({ _id: { $in: ids } });
             const followersIds = followers.map((follower) => follower._id);
-
-            const posts = await postModel.find({ 'author._id': { $in: followersIds } })
+            const posts = await postModel.find({ 'author.id': { $in: followersIds } })
                 .populate({
                     path: 'author.id',
                     select: 'name profile_pic',
