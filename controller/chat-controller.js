@@ -30,21 +30,8 @@ module.exports = {
 
     viewMessageById: async (req, res) => {
         try {
-            const chat = await chatModel
-            .findById(req.params.id)
-            .select('messages')
-            .populate({
-              path: 'messages.sender',
-              select: 'name email',
-              model: 'User', // Populate the 'sender' field in the 'messages' array
-            })
-            .populate({
-              path: 'messages.receiver',
-              select: 'name email',
-              model: 'User', // Populate the 'receiver' field in the 'messages' array
-            });
-          
-            res.send(chat);
+            const chat = await chatModel.findById(req.params.id).populate('users messages.sender messages.receiver', 'name email')
+            res.send(chat.messages);
         } catch (err) {
             console.log(err)
             res.status(400).send(err);

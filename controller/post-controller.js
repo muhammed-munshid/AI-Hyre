@@ -155,11 +155,10 @@ module.exports = {
         try {
             const postId = req.params.id;
             const post = await postModel.findById(postId)
-
             if (!post) {
                 return res.status(404).json({ message: 'Post not found' });
             }
-
+            res.status(200).send(post);
         } catch (err) {
             console.error(err);
             res.status(500).send(err);
