@@ -40,7 +40,10 @@ module.exports = {
     myFollowers: async (req, res) => {
         try {
             const id = req.params.id
-            const user = await User.findById(id).populate('followers')
+            const user = await User.findById(id).populate({
+                path: 'followers',
+                select: 'name profile_pic'
+            });
             res.status(200).send(user.followers);
         } catch (err) {
             console.log(err);
